@@ -355,7 +355,7 @@ async function startServer({ certPath, keyPath, hostname, port }) {
 
 // ---------------------- main ----------------------
 (async () => {
-  const port = Number(process.env.DEV_HTTPS_PORT || 3001);
+  const port = Number(process.env.DEV_HTTPS_PORT || 3300);
   const hostname = '0.0.0.0';
   const ip = getLocalIPv4();
   const allIPs = getAllLocalIPv4();
