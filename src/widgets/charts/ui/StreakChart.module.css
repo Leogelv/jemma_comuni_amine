@@ -1,0 +1,53 @@
+/* StreakChart — График стриков привычек */
+
+.container {
+  /* Glassmorphism */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 16px;
+}
+
+.chartWrapper {
+  height: 160px;
+}
+
+/* Пустое состояние */
+.empty {
+  height: 128px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(148, 163, 184, 1); /* slate-400 */
+  font-size: 14px;
+}
+
+/* Кастомный Tooltip (через inline стили в recharts) */
+.tooltip {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.tooltipTitle {
+  font-weight: 500;
+}
+
+.tooltipValue {
+  color: rgba(52, 211, 153, 1); /* emerald-400 */
+}

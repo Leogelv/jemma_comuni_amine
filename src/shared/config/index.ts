@@ -1,1 +1,7 @@
-export { CATEGORIES, CATEGORY_LIST, type CategoryType, type CategoryConfig } from './categories';
+export {
+  CATEGORIES,
+  CATEGORY_LIST,
+  getCategory,
+  type CategoryType,
+  type CategoryConfig,
+} from './categories';

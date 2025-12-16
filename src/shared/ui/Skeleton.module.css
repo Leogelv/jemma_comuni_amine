@@ -1,0 +1,90 @@
+/* Skeleton для загрузки с glassmorphism стилем */
+
+.skeleton {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background: var(--skeleton-bg);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Варианты Skeleton */
+
+/* Text - для текстовых блоков */
+.variant-text {
+  height: 1rem; /* 16px */
+  border-radius: var(--radius-sm);
+}
+
+/* Circular - круглые элементы (аватары, иконки) */
+.variant-circular {
+  border-radius: var(--radius-full);
+}
+
+/* Rectangular - прямоугольные блоки (карточки, изображения) */
+.variant-rectangular {
+  border-radius: var(--radius-xl);
+}
+
+/* ========================================
+   ГОТОВЫЕ ВАРИАНТЫ
+   ======================================== */
+
+/* Skeleton для карточки привычки */
+.card-skeleton {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+}
+
+.card-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.card-days {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Skeleton для панели статистики */
+.stats-skeleton {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.stat-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+
+.stat-icon {
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  margin-bottom: 0.25rem;
+}

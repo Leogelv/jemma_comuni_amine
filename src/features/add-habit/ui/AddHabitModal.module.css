@@ -1,0 +1,185 @@
+/* AddHabitModal.module.css */
+
+/* Overlay (затемнённый фон) */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 50;
+}
+
+/* Modal Container (bottom sheet) */
+.modal {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(32px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.75rem 1.75rem 0 0;
+  padding: 1rem;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 50;
+}
+
+/* Handle Bar (полоска для swipe) */
+.handleBar {
+  width: 2.5rem;
+  height: 0.25rem;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 9999px;
+  margin: 0.75rem auto 1rem;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+}
+
+.header h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0;
+}
+
+.closeButton {
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  background: transparent;
+  border: none;
+  color: rgb(148, 163, 184);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Form */
+.form {
+  padding: 0 1rem;
+}
+
+/* Input Field */
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  transition: all 0.15s;
+}
+
+.input::placeholder {
+  color: rgb(71, 85, 105);
+}
+
+.input:focus {
+  outline: none;
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+/* Categories Grid */
+.categoriesGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.categoryButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgb(148, 163, 184);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.categoryButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Category Selected States */
+.categoryButton.selected {
+  border-width: 1px;
+}
+
+.categoryButton.sport.selected {
+  background: rgba(249, 115, 22, 0.2);
+  border-color: rgba(249, 115, 22, 0.4);
+  color: rgb(251, 146, 60);
+}
+
+.categoryButton.nutrition.selected {
+  background: rgba(20, 184, 166, 0.2);
+  border-color: rgba(20, 184, 166, 0.4);
+  color: rgb(45, 212, 191);
+}
+
+.categoryButton.regime.selected {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.4);
+  color: rgb(167, 139, 250);
+}
+
+.categoryButton.other.selected {
+  background: rgba(100, 116, 139, 0.2);
+  border-color: rgba(100, 116, 139, 0.4);
+  color: rgb(148, 163, 184);
+}
+
+.categoryButton .emoji {
+  font-size: 1.5rem;
+}
+
+.categoryButton .label {
+  font-size: 0.75rem;
+}
+
+/* Submit Button */
+.submitButton {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  font-weight: 500;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: rgb(52, 211, 153);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.submitButton:hover {
+  background: rgba(16, 185, 129, 0.3);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submitButton:disabled:hover {
+  background: rgba(16, 185, 129, 0.2);
+}

@@ -1,0 +1,209 @@
+/* SettingsView.module.css */
+
+/* Основной контейнер */
+.container {
+  padding: 1rem;
+  padding-top: 3rem;
+  min-height: 100vh;
+  padding-bottom: 8rem;
+  padding-top: calc(3rem + env(safe-area-inset-top));
+}
+
+/* Header */
+.header {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: -0.025em;
+  margin: 0 0 1.5rem 0;
+}
+
+/* User Card */
+.userCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.userAvatar {
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(to bottom right, rgb(16, 185, 129), rgb(59, 130, 246));
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.userAvatar svg {
+  color: white;
+}
+
+.userDetails h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0 0 0.25rem 0;
+}
+
+.userDetails p {
+  font-size: 0.875rem;
+  color: rgb(100, 116, 139);
+  margin: 0;
+}
+
+/* User Stats Grid */
+.userStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.userStat {
+  text-align: center;
+}
+
+.userStatContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.userStatContent svg {
+  flex-shrink: 0;
+}
+
+.userStatContent svg.amber {
+  color: rgb(251, 191, 36);
+}
+
+.userStatContent svg.orange {
+  color: rgb(251, 146, 60);
+}
+
+.userStatContent svg.emerald {
+  color: rgb(52, 211, 153);
+}
+
+.userStatContent span {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.userStat p {
+  font-size: 0.75rem;
+  color: rgb(100, 116, 139);
+  margin: 0;
+}
+
+/* Habits Management Card */
+.habitsCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.habitsHeader {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.habitsHeader h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0;
+}
+
+/* Empty State */
+.emptyHabits {
+  color: rgb(148, 163, 184);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+/* Habit List */
+.habitsList {
+  /* No additional styles needed, container handles it */
+}
+
+.habitItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.habitItem:last-child {
+  border-bottom: none;
+}
+
+.habitInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.habitInfo > span:first-child {
+  font-size: 1.25rem;
+}
+
+.habitDetails h4 {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0 0 0.25rem 0;
+}
+
+.habitDetails p {
+  font-size: 0.75rem;
+  color: rgb(100, 116, 139);
+  margin: 0;
+}
+
+.deleteButton {
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.deleteButton:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.deleteButton svg {
+  color: rgb(248, 113, 113);
+}
+
+/* App Info */
+.appInfo {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: rgb(100, 116, 139);
+}
+
+.appInfo p {
+  margin: 0.25rem 0;
+}

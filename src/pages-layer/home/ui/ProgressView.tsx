@@ -5,25 +5,22 @@ import {
   Trophy,
   Flame,
   Target,
-  TrendingUp,
   Award,
   Star,
   Zap,
   Crown,
+  TrendingUp,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Habit } from '@/entities/habit';
-import { CATEGORIES, type CategoryType } from '@/shared/config';
+import { CATEGORIES } from '@/shared/config';
 import { cn } from '@/shared/lib';
-import {
-  format,
-  isSameDay,
-  parseISO,
-  startOfWeek,
-  endOfWeek,
-  eachDayOfInterval,
-  subWeeks,
-} from 'date-fns';
-import { ru } from 'date-fns/locale';
+import { isSameDay, parseISO } from 'date-fns';
+import { HeatmapCalendar } from '@/widgets/heatmap-calendar';
+import { PointsChart, StreakChart } from '@/widgets/charts';
+import styles from './ProgressView.module.css';
+
+// ProgressView — вкладка прогресса с графиками и достижениями
 
 interface ProgressViewProps {
   habits: Habit[];
@@ -41,29 +38,6 @@ export function ProgressView({ habits, totalPoints }: ProgressViewProps) {
   const maxStreak = Math.max(...habits.map(h => h.streak), 0);
   const totalCompletions = habits.reduce((acc, h) => acc + h.total_completions, 0);
 
-  // Прогресс за последние 4 недели
-  const weeklyData = Array.from({ length: 4 }).map((_, i) => {
-    const weekStart = startOfWeek(subWeeks(today, 3 - i), { weekStartsOn: 1 });
-    const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
-    const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
-
-    const completions = habits.reduce((acc, habit) => {
-      return acc + habit.completed_dates.filter(d => {
-        const date = parseISO(d);
-        return date >= weekStart && date <= weekEnd;
-      }).length;
-    }, 0);
-
-    const maxCompletions = habits.length * 7;
-    const progress = maxCompletions > 0 ? Math.round((completions / maxCompletions) * 100) : 0;
-
-    return {
-      label: format(weekStart, 'd MMM', { locale: ru }),
-      progress,
-      completions,
-    };
-  });
-
   // Достижения
   const achievements = [
     {
@@ -71,32 +45,32 @@ export function ProgressView({ habits, totalPoints }: ProgressViewProps) {
       title: 'Первые шаги',
       description: 'Выполни 1 привычку',
       unlocked: totalCompletions >= 1,
-      color: 'text-orange-500',
-      bgColor: 'bg-orange-50',
+      iconBg: 'bg-orange-50',
+      iconColor: 'text-orange-500',
     },
     {
       icon: Zap,
       title: 'Неделька',
       description: '7 дней подряд',
       unlocked: maxStreak >= 7,
-      color: 'text-yellow-500',
-      bgColor: 'bg-yellow-50',
+      iconBg: 'bg-amber-50',
+      iconColor: 'text-amber-500',
     },
     {
       icon: Star,
       title: 'Стабильность',
       description: '30 выполнений',
       unlocked: totalCompletions >= 30,
-      color: 'text-blue-500',
-      bgColor: 'bg-blue-50',
+      iconBg: 'bg-indigo-50',
+      iconColor: 'text-indigo-500',
     },
     {
       icon: Crown,
       title: 'Легенда',
       description: '100 выполнений',
       unlocked: totalCompletions >= 100,
-      color: 'text-purple-500',
-      bgColor: 'bg-purple-50',
+      iconBg: 'bg-violet-50',
+      iconColor: 'text-violet-500',
     },
   ];
 
@@ -111,133 +85,175 @@ export function ProgressView({ habits, totalPoints }: ProgressViewProps) {
     };
   }).filter(c => c.habitsCount > 0);
 
+  // Основные stat-карточки
+  const mainStats = [
+    {
+      icon: Trophy,
+      label: 'Очки',
+      value: totalPoints.toLocaleString(),
+      iconBg: 'bg-amber-50',
+      iconColor: 'text-amber-500',
+    },
+    {
+      icon: Flame,
+      label: 'Стрик',
+      value: `${maxStreak}`,
+      iconBg: 'bg-orange-50',
+      iconColor: 'text-orange-500',
+    },
+    {
+      icon: Target,
+      label: 'Сегодня',
+      value: `${completedToday}/${habits.length}`,
+      iconBg: 'bg-emerald-50',
+      iconColor: 'text-emerald-500',
+    },
+    {
+      icon: TrendingUp,
+      label: 'Всего',
+      value: `${totalCompletions}`,
+      iconBg: 'bg-indigo-50',
+      iconColor: 'text-indigo-500',
+    },
+  ];
+
   return (
-    <div className="p-6 pt-12 min-h-screen bg-[var(--background)] pb-32 safe-area-top">
+    <div className={styles.container}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-light text-gray-800 tracking-tight">
-          Прогресс
-        </h2>
-        <div className="flex items-center gap-2 bg-yellow-50 px-4 py-2 rounded-xl">
-          <Trophy size={20} className="text-yellow-500" />
-          <span className="text-xl font-bold text-yellow-600">{totalPoints}</span>
-        </div>
+      <div className={styles.header}>
+        <h2>Прогресс</h2>
       </div>
 
-      {/* Main Stats */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <Target size={18} className="text-green-500" />
-            <span className="text-xs text-gray-500 font-medium uppercase">Сегодня</span>
-          </div>
-          <div className="text-2xl font-bold text-green-500">
-            {completedToday}/{habits.length}
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <Flame size={18} className="text-orange-500" />
-            <span className="text-xs text-gray-500 font-medium uppercase">Макс. стрик</span>
-          </div>
-          <div className="text-2xl font-bold text-orange-500">{maxStreak} дн.</div>
-        </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <Award size={18} className="text-indigo-500" />
-            <span className="text-xs text-gray-500 font-medium uppercase">Всего</span>
-          </div>
-          <div className="text-2xl font-bold text-indigo-500">{totalCompletions}</div>
-        </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp size={18} className="text-purple-500" />
-            <span className="text-xs text-gray-500 font-medium uppercase">Привычек</span>
-          </div>
-          <div className="text-2xl font-bold text-purple-500">{habits.length}</div>
-        </div>
-      </div>
+      {/* Main Stats Grid */}
+      <div className={styles.statsGrid}>
+        <div className={styles.statsGridInner}>
+          {mainStats.map(({ icon: Icon, label, value, iconBg, iconColor }, index) => {
+            // Определяем класс цвета для иконки
+            const colorClass = iconBg.includes('amber') ? 'amber' :
+                              iconBg.includes('orange') ? 'orange' :
+                              iconBg.includes('emerald') ? 'emerald' :
+                              iconBg.includes('indigo') ? 'indigo' : '';
 
-      {/* Weekly Progress Chart */}
-      <div className="bg-white rounded-3xl p-5 shadow-sm mb-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">За последние 4 недели</h3>
-        <div className="flex items-end justify-between h-32 gap-2">
-          {weeklyData.map((week, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center">
-              <div className="w-full bg-gray-100 rounded-full overflow-hidden h-24 flex flex-col-reverse">
-                <div
-                  className="bg-indigo-500 rounded-full transition-all duration-500"
-                  style={{ height: `${week.progress}%` }}
-                />
-              </div>
-              <span className="text-xs text-gray-400 mt-2 font-medium">{week.label}</span>
-              <span className="text-xs text-indigo-500 font-bold">{week.progress}%</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Achievements */}
-      <div className="bg-white rounded-3xl p-5 shadow-sm mb-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Достижения</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {achievements.map((achievement) => {
-            const Icon = achievement.icon;
             return (
-              <div
-                key={achievement.title}
-                className={cn(
-                  'rounded-2xl p-4 transition-all',
-                  achievement.unlocked
-                    ? achievement.bgColor
-                    : 'bg-gray-100 opacity-50'
-                )}
+              <motion.div
+                key={label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className={styles.statCard}
               >
-                <Icon
-                  size={24}
-                  className={achievement.unlocked ? achievement.color : 'text-gray-400'}
-                />
-                <h4 className={cn(
-                  'font-semibold mt-2',
-                  achievement.unlocked ? 'text-gray-800' : 'text-gray-500'
-                )}>
-                  {achievement.title}
-                </h4>
-                <p className="text-xs text-gray-400">{achievement.description}</p>
-              </div>
+                <div className={cn(styles.statIcon, styles[colorClass])}>
+                  <Icon size={20} />
+                </div>
+                <div className={styles.value}>
+                  {value}
+                </div>
+                <div className={styles.label}>
+                  {label}
+                </div>
+              </motion.div>
             );
           })}
         </div>
       </div>
 
+      {/* Points Chart */}
+      <div className={styles.section}>
+        <PointsChart habits={habits} />
+      </div>
+
+      {/* Heatmap Calendar */}
+      <div className={styles.section}>
+        <HeatmapCalendar habits={habits} />
+      </div>
+
+      {/* Streak Chart */}
+      {habits.length > 0 && (
+        <div className={styles.section}>
+          <StreakChart habits={habits} />
+        </div>
+      )}
+
+      {/* Achievements */}
+      <div className={styles.section}>
+        <div className={styles.achievementsCard}>
+          <h3>Достижения</h3>
+          <div className={styles.achievementsGrid}>
+            {achievements.map((achievement, index) => {
+              const Icon = achievement.icon;
+              const iconColorClass = achievement.iconColor.includes('orange') ? 'orange' :
+                                    achievement.iconColor.includes('amber') ? 'amber' :
+                                    achievement.iconColor.includes('indigo') ? 'indigo' :
+                                    achievement.iconColor.includes('violet') ? 'violet' : '';
+
+              return (
+                <motion.div
+                  key={achievement.title}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={cn(
+                    styles.achievementItem,
+                    achievement.unlocked ? styles.unlocked : styles.locked
+                  )}
+                >
+                  <div className={cn(
+                    styles.achievementIcon,
+                    achievement.unlocked ? styles.unlocked : styles.locked
+                  )}>
+                    <Icon
+                      size={20}
+                      className={achievement.unlocked ? cn(styles[iconColorClass]) : cn(styles.muted)}
+                    />
+                  </div>
+                  <h4 className={achievement.unlocked ? styles.unlocked : styles.locked}>
+                    {achievement.title}
+                  </h4>
+                  <p>{achievement.description}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       {/* Category Stats */}
       {categoryStats.length > 0 && (
-        <div className="bg-white rounded-3xl p-5 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">По категориям</h3>
-          <div className="space-y-3">
-            {categoryStats.map((cat) => (
-              <div
-                key={cat.id}
-                className={cn('rounded-2xl p-4', cat.bgLight)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">{cat.emoji}</span>
-                    <span className={cn('font-semibold', cat.textColor)}>
-                      {cat.label}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <div className={cn('font-bold', cat.textColor)}>
-                      {cat.completions} выполнений
+        <div className={styles.section}>
+          <div className={styles.categoryStatsCard}>
+            <h3>По категориям</h3>
+            <div className={styles.categoryStatsList}>
+              {categoryStats.map((cat) => (
+                <div
+                  key={cat.id}
+                  className={styles.categoryStatItem}
+                >
+                  <div className={styles.categoryStatLeft}>
+                    <div
+                      className={styles.categoryStatBar}
+                      style={{ backgroundColor: cat.color }}
+                    />
+                    <div className={styles.categoryStatInfo}>
+                      <div className={styles.categoryStatName}>
+                        <span>{cat.emoji}</span>
+                        <span>{cat.label}</span>
+                      </div>
+                      <div className={styles.categoryStatMeta}>
+                        {cat.habitsCount} привычек
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-400">
-                      {cat.habitsCount} привычек
+                  </div>
+                  <div className={styles.categoryStatRight}>
+                    <div className={styles.categoryStatValue}>
+                      {cat.completions}
+                    </div>
+                    <div className={styles.categoryStatLabel}>
+                      выполнений
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       )}

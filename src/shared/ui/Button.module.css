@@ -1,0 +1,146 @@
+/* Кнопка дизайн-системы с glassmorphism стилем */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  border-radius: var(--radius-xl);
+  transition: var(--transition-base);
+  outline: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+/* Focus visible состояние (для клавиатурной навигации) */
+.button:focus-visible {
+  outline: 2px solid var(--input-border-focus);
+  outline-offset: 2px;
+}
+
+/* Состояние disabled */
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ========================================
+   ВАРИАНТЫ КНОПОК
+   ======================================== */
+
+/* Primary - Изумрудный акцент */
+.variant-primary {
+  background: var(--color-accent-bg);
+  border-color: var(--color-accent-border);
+  color: var(--color-accent);
+}
+
+.variant-primary:hover:not(:disabled) {
+  background: var(--color-accent-hover-bg);
+}
+
+.variant-primary:active:not(:disabled) {
+  background: var(--color-accent-active-bg);
+}
+
+/* Secondary - Стеклянная кнопка */
+.variant-secondary {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-color: var(--glass-border);
+  color: var(--btn-secondary-text);
+}
+
+.variant-secondary:hover:not(:disabled) {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+}
+
+.variant-secondary:active:not(:disabled) {
+  background: var(--glass-bg);
+}
+
+/* Ghost - Прозрачная кнопка */
+.variant-ghost {
+  background: transparent;
+  color: var(--btn-ghost-text);
+  border-color: transparent;
+}
+
+.variant-ghost:hover:not(:disabled) {
+  color: var(--btn-ghost-hover-text);
+  background: var(--btn-ghost-hover-bg);
+}
+
+.variant-ghost:active:not(:disabled) {
+  background: var(--btn-ghost-active-bg);
+}
+
+/* Danger - Красная кнопка для деструктивных действий */
+.variant-danger {
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger-border);
+  color: var(--color-danger);
+}
+
+.variant-danger:hover:not(:disabled) {
+  background: var(--color-danger-hover-bg);
+}
+
+.variant-danger:active:not(:disabled) {
+  background: var(--color-danger-active-bg);
+}
+
+/* ========================================
+   РАЗМЕРЫ КНОПОК
+   ======================================== */
+
+.size-sm {
+  padding: 0.5rem 0.75rem; /* 8px 12px */
+  font-size: 0.875rem; /* 14px */
+  gap: 0.375rem; /* 6px */
+}
+
+.size-md {
+  padding: 0.75rem 1rem; /* 12px 16px */
+  font-size: 1rem; /* 16px */
+  gap: 0.5rem; /* 8px */
+}
+
+.size-lg {
+  padding: 1rem 1.25rem; /* 16px 20px */
+  font-size: 1rem; /* 16px */
+  gap: 0.5rem; /* 8px */
+}
+
+/* ========================================
+   МОДИФИКАТОРЫ
+   ======================================== */
+
+/* Кнопка на всю ширину */
+.full-width {
+  width: 100%;
+}
+
+/* Состояние loading */
+.loading {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Спиннер загрузки */
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

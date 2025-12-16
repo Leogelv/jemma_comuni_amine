@@ -1,0 +1,84 @@
+/* PointsChart — График очков с переключением периодов */
+
+.container {
+  /* Glassmorphism */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+/* Header с переключателем периодов */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Переключатель периодов */
+.periodSwitcher {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.periodButton {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 200ms ease-out;
+
+  /* По умолчанию */
+  color: rgba(148, 163, 184, 1); /* slate-400 */
+  background: transparent;
+}
+
+.periodButton:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+.periodButton.active {
+  background: rgba(16, 185, 129, 0.2); /* emerald-500/20 */
+  color: rgba(52, 211, 153, 1); /* emerald-400 */
+}
+
+/* График */
+.chartWrapper {
+  height: 192px;
+}
+
+/* Tooltip (используется inline в recharts, но для ссылки) */
+.tooltip {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.tooltipTitle {
+  font-weight: 500;
+}
+
+.tooltipValue {
+  color: rgba(52, 211, 153, 1); /* emerald-400 */
+}

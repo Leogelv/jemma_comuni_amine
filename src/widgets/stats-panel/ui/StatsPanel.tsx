@@ -1,10 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Trophy, Flame, Target, TrendingUp } from 'lucide-react';
-import { cn } from '@/shared/lib';
+import { Trophy, Flame, Target } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Habit } from '@/entities/habit';
-import { format, isSameDay, parseISO, startOfWeek, eachDayOfInterval, endOfWeek } from 'date-fns';
+import { isSameDay, parseISO } from 'date-fns';
+import styles from './StatsPanel.module.css';
+
+// StatsPanel — карточки статистики с glassmorphism
 
 interface StatsPanelProps {
   habits: Habit[];
@@ -14,7 +17,6 @@ interface StatsPanelProps {
 
 export function StatsPanel({ habits, totalPoints, className }: StatsPanelProps) {
   const today = new Date();
-  const todayStr = format(today, 'yyyy-MM-dd');
 
   // Статистика на сегодня
   const completedToday = habits.filter(h =>
@@ -24,73 +26,46 @@ export function StatsPanel({ habits, totalPoints, className }: StatsPanelProps) 
   // Максимальный стрик
   const maxStreak = Math.max(...habits.map(h => h.streak), 0);
 
-  // Прогресс за неделю
-  const weekStart = startOfWeek(today, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
-  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
-
-  const weeklyCompletions = habits.reduce((acc, habit) => {
-    const completionsThisWeek = habit.completed_dates.filter(d => {
-      const date = parseISO(d);
-      return date >= weekStart && date <= weekEnd;
-    }).length;
-    return acc + completionsThisWeek;
-  }, 0);
-
-  const maxWeeklyCompletions = habits.length * 7;
-  const weeklyProgress = maxWeeklyCompletions > 0
-    ? Math.round((weeklyCompletions / maxWeeklyCompletions) * 100)
-    : 0;
-
   const stats = [
     {
       icon: Trophy,
       label: 'Очки',
       value: totalPoints.toLocaleString(),
-      color: 'text-yellow-500',
-      bgColor: 'bg-yellow-50',
+      iconType: 'trophy' as const,
     },
     {
       icon: Flame,
       label: 'Макс. стрик',
       value: `${maxStreak} дн.`,
-      color: 'text-orange-500',
-      bgColor: 'bg-orange-50',
+      iconType: 'flame' as const,
     },
     {
       icon: Target,
       label: 'Сегодня',
       value: `${completedToday}/${habits.length}`,
-      color: 'text-green-500',
-      bgColor: 'bg-green-50',
-    },
-    {
-      icon: TrendingUp,
-      label: 'Неделя',
-      value: `${weeklyProgress}%`,
-      color: 'text-indigo-500',
-      bgColor: 'bg-indigo-50',
+      iconType: 'target' as const,
     },
   ];
 
   return (
-    <div className={cn('grid grid-cols-2 gap-3', className)}>
-      {stats.map(({ icon: Icon, label, value, color, bgColor }) => (
-        <div
+    <div className={`${styles.container} ${className || ''}`}>
+      {stats.map(({ icon: Icon, label, value, iconType }, index) => (
+        <motion.div
           key={label}
-          className={cn(
-            'rounded-2xl p-4 shadow-sm transition-transform hover:scale-[1.02]',
-            bgColor
-          )}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: index * 0.05 }}
+          className={styles.card}
+          style={{ animationDelay: `${index * 50}ms` }}
         >
-          <div className="flex items-center gap-2 mb-2">
-            <Icon size={18} className={color} />
-            <span className="text-xs text-gray-500 font-medium uppercase tracking-wider">
-              {label}
-            </span>
+          <Icon size={18} className={`${styles.icon} ${styles[iconType]}`} />
+          <div className={styles.value}>
+            {value}
           </div>
-          <div className={cn('text-2xl font-bold', color)}>{value}</div>
-        </div>
+          <div className={styles.label}>
+            {label}
+          </div>
+        </motion.div>
       ))}
     </div>
   );

@@ -5,6 +5,9 @@ import { X, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CATEGORY_LIST, type CategoryType } from '@/shared/config';
 import { cn } from '@/shared/lib';
+import styles from './AddHabitModal.module.css';
+
+// AddHabitModal — модальное окно для создания новых привычек
 
 interface AddHabitModalProps {
   isOpen: boolean;
@@ -36,7 +39,7 @@ export function AddHabitModal({ isOpen, onClose, onAdd }: AddHabitModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            className={styles.overlay}
           />
 
           {/* Modal */}
@@ -44,60 +47,63 @@ export function AddHabitModal({ isOpen, onClose, onAdd }: AddHabitModalProps) {
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 z-50 safe-area-bottom"
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className={styles.modal}
           >
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-gray-800">Новая привычка</h2>
+            {/* Handle bar */}
+            <div className={styles.handleBar} />
+
+            {/* Header */}
+            <div className={styles.header}>
+              <h2>Новая привычка</h2>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className={styles.closeButton}
               >
-                <X size={20} className="text-gray-500" />
+                <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className={styles.form}>
+              {/* Input */}
               <input
                 type="text"
                 placeholder="Название привычки..."
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-gray-100 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4"
+                className={styles.input}
                 autoFocus
               />
 
-              <div className="mb-6">
-                <p className="text-sm text-gray-500 mb-3">Категория</p>
-                <div className="flex flex-wrap gap-2">
-                  {CATEGORY_LIST.map((cat) => (
+              {/* Categories */}
+              <div className={styles.categoriesGrid}>
+                {CATEGORY_LIST.map((cat) => {
+                  const isSelected = category === cat.id;
+                  return (
                     <button
                       key={cat.id}
                       type="button"
                       onClick={() => setCategory(cat.id)}
                       className={cn(
-                        'px-4 py-2 rounded-full text-sm font-medium transition-all',
-                        category === cat.id
-                          ? cn(cat.activeColor, 'text-white shadow-md')
-                          : cn(cat.bgLight, cat.textColor)
+                        styles.categoryButton,
+                        isSelected && styles.selected,
+                        isSelected && styles[cat.id as CategoryType]
                       )}
                     >
-                      {cat.emoji} {cat.label}
+                      <span className={styles.emoji}>{cat.emoji}</span>
+                      <span className={styles.label}>{cat.label}</span>
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
 
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={!title.trim()}
-                className={cn(
-                  'w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all',
-                  title.trim()
-                    ? 'bg-indigo-500 text-white hover:bg-indigo-600'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                )}
+                className={styles.submitButton}
               >
-                <Plus size={20} />
+                <Plus size={20} strokeWidth={2.5} />
                 Добавить привычку
               </button>
             </form>

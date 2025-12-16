@@ -1,0 +1,162 @@
+/* CalendarView.module.css */
+
+/* Основной контейнер */
+.container {
+  padding: 1rem;
+  padding-top: 3rem;
+  min-height: 100vh;
+  padding-bottom: 8rem;
+  padding-top: calc(3rem + env(safe-area-inset-top));
+}
+
+/* Header с навигацией */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navButton {
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 0.75rem;
+  color: rgb(148, 163, 184);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.navButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.monthLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  width: 6rem;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+/* Calendar Card */
+.calendarCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+/* Days Header */
+.daysHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.dayName {
+  font-size: 0.75rem;
+  color: rgb(100, 116, 139);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Calendar Grid */
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.dayCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.dayButton {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  position: relative;
+  border: none;
+  cursor: default;
+}
+
+/* Базовые состояния дня */
+.dayButton.empty {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgb(148, 163, 184);
+}
+
+.dayButton.partial {
+  background: rgba(16, 185, 129, 0.3);
+  color: rgb(52, 211, 153);
+}
+
+.dayButton.complete {
+  background: rgba(16, 185, 129, 0.6);
+  color: white;
+}
+
+/* Сегодняшний день */
+.dayButton.today {
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.5);
+}
+
+/* Stats Blocks */
+.statsGrid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.statBlock {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.statBlock .value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 0.25rem;
+}
+
+.statBlock .label {
+  font-size: 0.75rem;
+  color: rgb(148, 163, 184);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

@@ -6,8 +6,10 @@
     "dev": "next dev --turbopack",
     "dev:https": "node scripts/dev-https.js",
     "build": "next build",
+    "build:clean": "rm -rf .next && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "clean": "rm -rf .next node_modules/.cache"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -21,16 +23,15 @@
     "next": "^16.0.10",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "recharts": "^3.6.0",
     "zustand": "^5.0.9"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
     "@types/node": "^22",
     "@types/react": "19.2.7",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "^16.0.10",
-    "tailwindcss": "^4",
     "typescript": "^5"
   }
 }

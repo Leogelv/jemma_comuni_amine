@@ -3,6 +3,9 @@
 import React from 'react';
 import { HabitCard } from '@/entities/habit/ui/HabitCard';
 import { Habit } from '@/entities/habit';
+import styles from './HabitList.module.css';
+
+// HabitList — контейнер для списка привычек
 
 interface HabitListProps {
   habits: Habit[];
@@ -10,20 +13,13 @@ interface HabitListProps {
 }
 
 export function HabitList({ habits, onToggleDate }: HabitListProps) {
+  // Пустое состояние обрабатывается в HomePage
   if (habits.length === 0) {
-    return (
-      <div className="text-center py-16 opacity-60">
-        <div className="text-6xl mb-4">🌱</div>
-        <p className="text-gray-500 text-lg font-medium">Начни с малого</p>
-        <p className="text-gray-400 text-sm mt-2">
-          Добавь свою первую привычку
-        </p>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="space-y-4">
+    <div className={styles.container}>
       {habits.map((habit) => (
         <HabitCard
           key={habit.id}

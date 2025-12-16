@@ -1,6 +1,13 @@
 'use client';
 
+/**
+ * useUpsertTgUser — хук для работы с пользователем
+ *
+ * Включает real-time подписку на tg_users для автоматической синхронизации points
+ */
+
 import { useQuery } from '@tanstack/react-query';
+import { useRealtimeSubscription } from '@/shared/lib/useRealtimeSubscription';
 
 export interface UpsertUserPayload {
   telegram_id: number;
@@ -11,6 +18,15 @@ export interface UpsertUserPayload {
 }
 
 export function useUpsertTgUser(values: UpsertUserPayload) {
+  // Real-time подписка на изменения tg_users (для синхронизации points)
+  useRealtimeSubscription({
+    channelName: `tg-users-${values.telegram_id}`,
+    table: 'tg_users',
+    filter: values.telegram_id ? `telegram_id=eq.${values.telegram_id}` : undefined,
+    invalidateKeys: [['user', values.telegram_id]],
+    enabled: !!values.telegram_id,
+  });
+
   return useQuery({
     queryKey: ['user', values.telegram_id],
     queryFn: async () => {
@@ -30,5 +46,7 @@ export function useUpsertTgUser(values: UpsertUserPayload) {
       return response.json();
     },
     enabled: !!values.telegram_id,
+    staleTime: 0, // Realtime приоритет
+    refetchOnWindowFocus: false,
   });
 }

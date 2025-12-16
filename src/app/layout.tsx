@@ -29,7 +29,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased">
+      <body style={{ minHeight: '100vh', background: 'var(--color-bg)', color: 'var(--color-text)' }}>
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -1,0 +1,41 @@
+/* Базовая карточка дизайн-системы с glassmorphism стилем */
+
+.card {
+  border-radius: var(--radius-md);
+  transition: var(--transition-base);
+}
+
+/* Вариант: default - стандартная стеклянная карточка с hover эффектом */
+.variant-default {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+.variant-default:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+}
+
+/* Вариант: flat - плоская карточка без hover эффекта */
+.variant-flat {
+  background: var(--glass-bg);
+}
+
+/* Отступы (padding) */
+.padding-none {
+  padding: 0;
+}
+
+.padding-sm {
+  padding: var(--spacing-sm);
+}
+
+.padding-md {
+  padding: var(--spacing-md);
+}
+
+.padding-lg {
+  padding: var(--spacing-lg);
+}

@@ -13,9 +13,13 @@ import { HabitList } from '@/widgets/habit-list';
 import { StatsPanel } from '@/widgets/stats-panel';
 import { BottomNav, TabType } from '@/widgets/bottom-nav';
 import { AddHabitModal } from '@/features/add-habit';
+import { SkeletonCard, SkeletonStats } from '@/shared/ui';
 import { CalendarView } from './CalendarView';
 import { SettingsView } from './SettingsView';
 import { ProgressView } from './ProgressView';
+import styles from './HomePage.module.css';
+
+// HomePage — главная страница приложения с табами
 
 export function HomePage() {
   const [activeTab, setActiveTab] = useState<TabType>('home');
@@ -52,106 +56,134 @@ export function HomePage() {
   const totalPoints = user?.total_points || 0;
 
   return (
-    <div className="min-h-screen bg-[var(--background)] relative pb-24">
-      {/* Home Tab */}
-      {activeTab === 'home' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="animate-fade-in"
-        >
-          {/* Header */}
-          <div className="px-6 pt-12 pb-4 safe-area-top">
-            <div className="flex justify-between items-end mb-4">
-              <div>
-                <h1 className="text-3xl font-light text-gray-800 tracking-tight">
-                  Anti Self-Deception
-                </h1>
-                <p className="text-sm text-gray-400 font-medium mt-1">
-                  {format(new Date(), 'EEEE, d MMMM', { locale: ru })}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 bg-yellow-50 px-3 py-2 rounded-xl">
-                <Trophy size={18} className="text-yellow-500" />
-                <span className="text-lg font-bold text-yellow-600">
-                  {totalPoints}
-                </span>
+    <div className={styles.page}>
+      {/* Контейнер с max-width для desktop */}
+      <div className={styles.container}>
+        {/* Home Tab */}
+        {activeTab === 'home' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className={styles.tabContent}
+          >
+            {/* Header */}
+            <div className={styles.header}>
+              <div className={styles.headerContent}>
+                <div className={styles.headerText}>
+                  <p>
+                    {format(new Date(), 'EEEE, d MMMM', { locale: ru })}
+                  </p>
+                  <h1>Anti Self-Deception</h1>
+                </div>
+                <div className={styles.pointsBadge}>
+                  <Trophy size={16} />
+                  <span>{totalPoints}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Stats Mini Panel */}
-          <div className="px-4 mb-4">
-            <StatsPanel habits={habits} totalPoints={totalPoints} />
-          </div>
+            {/* Stats Mini Panel */}
+            <div className={styles.statsSection}>
+              {isLoading ? (
+                <SkeletonStats />
+              ) : (
+                <StatsPanel habits={habits} totalPoints={totalPoints} />
+              )}
+            </div>
 
-          {/* Habits List */}
-          <div className="px-4">
-            {isLoading ? (
-              <div className="flex justify-center py-16">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500" />
-              </div>
-            ) : (
-              <HabitList habits={habits} onToggleDate={handleToggleDate} />
+            {/* Habits List */}
+            <div className={styles.habitsSection}>
+              {isLoading ? (
+                <div className={styles.skeletonList}>
+                  <SkeletonCard />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                </div>
+              ) : habits.length === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={styles.emptyState}
+                >
+                  <div className={styles.emptyStateIcon}>
+                    <Plus size={32} />
+                  </div>
+                  <h3>Нет привычек</h3>
+                  <p>Добавьте первую привычку для отслеживания</p>
+                  <button
+                    onClick={() => setIsAddModalOpen(true)}
+                    className={styles.emptyStateButton}
+                  >
+                    Добавить привычку
+                  </button>
+                </motion.div>
+              ) : (
+                <HabitList habits={habits} onToggleDate={handleToggleDate} />
+              )}
+            </div>
+
+            {/* FAB */}
+            {habits.length > 0 && (
+              <motion.button
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20, delay: 0.2 }}
+                onClick={() => setIsAddModalOpen(true)}
+                className={styles.fab}
+              >
+                <Plus size={24} strokeWidth={2.5} />
+              </motion.button>
             )}
-          </div>
+          </motion.div>
+        )}
 
-          {/* FAB */}
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="fixed bottom-24 right-6 w-14 h-14 bg-indigo-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-indigo-600 transition-all hover:scale-110 z-40"
+        {/* Progress Tab */}
+        {activeTab === 'stats' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className={styles.tabContent}
           >
-            <Plus size={28} />
-          </button>
-        </motion.div>
-      )}
+            <ProgressView habits={habits} totalPoints={totalPoints} />
+          </motion.div>
+        )}
 
-      {/* Progress Tab */}
-      {activeTab === 'stats' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="animate-fade-in"
-        >
-          <ProgressView habits={habits} totalPoints={totalPoints} />
-        </motion.div>
-      )}
+        {/* History Tab */}
+        {activeTab === 'history' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className={styles.tabContent}
+          >
+            <CalendarView habits={habits} />
+          </motion.div>
+        )}
 
-      {/* History Tab */}
-      {activeTab === 'history' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="animate-fade-in"
-        >
-          <CalendarView habits={habits} />
-        </motion.div>
-      )}
+        {/* Settings Tab */}
+        {activeTab === 'settings' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className={styles.tabContent}
+          >
+            <SettingsView
+              habits={habits}
+              user={user}
+              telegramId={telegramId}
+            />
+          </motion.div>
+        )}
 
-      {/* Settings Tab */}
-      {activeTab === 'settings' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="animate-fade-in"
-        >
-          <SettingsView
-            habits={habits}
-            user={user}
-            telegramId={telegramId}
-          />
-        </motion.div>
-      )}
+        {/* Bottom Navigation */}
+        <BottomNav activeTab={activeTab} onChange={setActiveTab} />
 
-      {/* Bottom Navigation */}
-      <BottomNav activeTab={activeTab} onChange={setActiveTab} />
-
-      {/* Add Habit Modal */}
-      <AddHabitModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAdd={handleAddHabit}
-      />
+        {/* Add Habit Modal */}
+        <AddHabitModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onAdd={handleAddHabit}
+        />
+      </div>
     </div>
   );
 }

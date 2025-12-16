@@ -1,0 +1,237 @@
+/* HabitCard.module.css - Минималистичный glassmorphism дизайн */
+
+/* CSS переменные для категорий */
+:root {
+  /* Sport */
+  --color-sport: #f97316;
+  --color-sport-bg: rgba(249, 115, 22, 0.2);
+  --color-sport-border: rgba(249, 115, 22, 0.3);
+
+  /* Nutrition */
+  --color-nutrition: #14b8a6;
+  --color-nutrition-bg: rgba(20, 184, 166, 0.2);
+  --color-nutrition-border: rgba(20, 184, 166, 0.3);
+
+  /* Regime */
+  --color-regime: #8b5cf6;
+  --color-regime-bg: rgba(139, 92, 246, 0.2);
+  --color-regime-border: rgba(139, 92, 246, 0.3);
+
+  /* Other */
+  --color-other: #64748b;
+  --color-other-bg: rgba(100, 116, 139, 0.2);
+  --color-other-border: rgba(100, 116, 139, 0.3);
+}
+
+/* Карточка привычки */
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Динамические цвета для категорий через data-атрибуты */
+.card[data-category="sport"] {
+  --card-color: var(--color-sport);
+  --card-bg: var(--color-sport-bg);
+  --card-border: var(--color-sport-border);
+}
+
+.card[data-category="nutrition"] {
+  --card-color: var(--color-nutrition);
+  --card-bg: var(--color-nutrition-bg);
+  --card-border: var(--color-nutrition-border);
+}
+
+.card[data-category="regime"] {
+  --card-color: var(--color-regime);
+  --card-bg: var(--color-regime-bg);
+  --card-border: var(--color-regime-border);
+}
+
+.card[data-category="other"] {
+  --card-color: var(--color-other);
+  --card-bg: var(--color-other-bg);
+  --card-border: var(--color-other-border);
+}
+
+/* Вертикальная полоса слева (цветовой акцент) */
+.categoryAccent {
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  border-radius: 9999px;
+  background: var(--card-color);
+}
+
+/* Header секция */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Иконка категории */
+.categoryIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: var(--card-bg);
+}
+
+/* Информация о привычке */
+.habitInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.habitTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.2;
+  margin: 0;
+}
+
+.habitMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.points {
+  font-size: 14px;
+  color: #10b981;
+}
+
+/* Streak badge */
+.streakBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: rgba(249, 115, 22, 0.2);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.streakIcon {
+  color: #fb923c;
+  width: 12px;
+  height: 12px;
+}
+
+.streakCount {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fb923c;
+}
+
+/* Days grid */
+.daysGrid {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.dayColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.dayName {
+  font-size: 10px;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+/* Day button */
+.dayButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  cursor: pointer;
+  outline: none;
+}
+
+.dayButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dayButton:focus {
+  outline: none;
+}
+
+/* Completed day */
+.dayButton.completed {
+  background: rgba(16, 185, 129, 0.3);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #6ee7b7;
+}
+
+/* Today (not completed) */
+.dayButton.today {
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+}
+
+/* Future day (disabled) */
+.dayButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Анимация checkmark */
+@keyframes checkmarkEnter {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(0deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.checkmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

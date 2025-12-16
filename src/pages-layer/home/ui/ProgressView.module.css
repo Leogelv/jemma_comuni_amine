@@ -1,0 +1,272 @@
+/* ProgressView.module.css */
+
+/* Основной контейнер с отступами */
+.container {
+  min-height: 100vh;
+  padding-bottom: 8rem;
+  padding-top: calc(0.5rem + env(safe-area-inset-top));
+}
+
+/* Header */
+.header {
+  padding: 3rem 1rem 1rem;
+}
+
+.header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0;
+}
+
+/* Main Stats Grid (2 колонки) */
+.statsGrid {
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+}
+
+.statsGridInner {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.statIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+/* Цвета для иконок */
+.statIcon.amber {
+  background: rgba(245, 158, 11, 0.2);
+  color: rgb(251, 191, 36);
+}
+
+.statIcon.orange {
+  background: rgba(249, 115, 22, 0.2);
+  color: rgb(251, 146, 60);
+}
+
+.statIcon.emerald {
+  background: rgba(16, 185, 129, 0.2);
+  color: rgb(52, 211, 153);
+}
+
+.statIcon.indigo {
+  background: rgba(99, 102, 241, 0.2);
+  color: rgb(129, 140, 248);
+}
+
+.statCard .value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 0.125rem;
+}
+
+.statCard .label {
+  font-size: 0.875rem;
+  color: rgb(148, 163, 184);
+}
+
+/* Charts/Blocks секции */
+.section {
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Achievements секция */
+.achievementsCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.achievementsCard h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0 0 1rem 0;
+}
+
+.achievementsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.achievementItem {
+  border-radius: 0.75rem;
+  padding: 1rem;
+  transition: all 0.2s;
+}
+
+.achievementItem.unlocked {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.achievementItem.locked {
+  background: rgba(255, 255, 255, 0.05);
+  opacity: 0.5;
+}
+
+.achievementIcon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.achievementIcon.unlocked {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.achievementIcon.locked {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Цвета для достижений */
+.achievementIcon svg.orange {
+  color: rgb(251, 146, 60);
+}
+
+.achievementIcon svg.amber {
+  color: rgb(251, 191, 36);
+}
+
+.achievementIcon svg.indigo {
+  color: rgb(129, 140, 248);
+}
+
+.achievementIcon svg.violet {
+  color: rgb(167, 139, 250);
+}
+
+.achievementIcon svg.muted {
+  color: rgb(71, 85, 105);
+}
+
+.achievementItem h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0 0 0.125rem 0;
+}
+
+.achievementItem h4.unlocked {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.achievementItem h4.locked {
+  color: rgb(148, 163, 184);
+}
+
+.achievementItem p {
+  font-size: 0.75rem;
+  color: rgb(148, 163, 184);
+  margin: 0;
+}
+
+/* Category Stats */
+.categoryStatsCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.categoryStatsCard h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0 0 1rem 0;
+}
+
+.categoryStatsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.categoryStatItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.categoryStatItem:last-child {
+  border-bottom: none;
+}
+
+.categoryStatLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.categoryStatBar {
+  width: 0.25rem;
+  height: 2rem;
+  border-radius: 9999px;
+}
+
+.categoryStatInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.categoryStatName {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.categoryStatName span:first-child {
+  font-size: 1rem;
+}
+
+.categoryStatName span:last-child {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.categoryStatMeta {
+  font-size: 0.75rem;
+  color: rgb(100, 116, 139);
+}
+
+.categoryStatRight {
+  text-align: right;
+}
+
+.categoryStatValue {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.categoryStatLabel {
+  font-size: 0.75rem;
+  color: rgb(100, 116, 139);
+}

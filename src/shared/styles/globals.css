@@ -1,0 +1,86 @@
+/* ========================================
+   ГЛОБАЛЬНЫЕ СТИЛИ: Anti Self-Deception
+   Базовые стили, reset, утилиты
+   ======================================== */
+
+/* Импорт дизайн-токенов и анимаций */
+@import "./tokens.css";
+@import "./animations.css";
+
+/* ========================================
+   БАЗОВЫЕ СТИЛИ
+   ======================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: system-ui, -apple-system, 'SF Pro Display', 'Segoe UI', sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+/* ========================================
+   TELEGRAM MINI APP: Safe Areas
+   ======================================== */
+
+.with-safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.with-safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ========================================
+   УТИЛИТЫ
+   ======================================== */
+
+/* Скрытие скроллбара (iOS/Android scroll) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Touch-friendly scrolling для iOS */
+.scroll-touch {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Glassmorphism эффект */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  transition: all var(--transition-base);
+}
+
+.glass:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+}
+
+/* Контейнер с ограниченной шириной */
+.container {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}

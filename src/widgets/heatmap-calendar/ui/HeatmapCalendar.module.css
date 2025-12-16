@@ -1,0 +1,191 @@
+/* HeatmapCalendar — GitHub-style тепловая карта активности */
+
+.container {
+  /* Glassmorphism */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+/* Header с навигацией по месяцам */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.navigation {
+  display: flex;
+  gap: 4px;
+}
+
+.navButton {
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 200ms ease-out;
+  color: rgba(148, 163, 184, 1); /* slate-400 */
+}
+
+.navButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.navButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Дни недели */
+.weekDays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.weekDay {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(148, 163, 184, 1); /* slate-400 */
+  text-transform: uppercase;
+}
+
+/* Календарная сетка */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+/* Ячейки дней */
+.day {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  transition: all 150ms ease-out;
+  cursor: pointer;
+}
+
+.day:hover {
+  transform: scale(1.1);
+  z-index: 10;
+}
+
+/* Интенсивности цвета */
+.day.intensity0 {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.day.intensity1 {
+  background: rgba(16, 185, 129, 0.2); /* emerald-500/20 */
+}
+
+.day.intensity2 {
+  background: rgba(16, 185, 129, 0.4); /* emerald-500/40 */
+}
+
+.day.intensity3 {
+  background: rgba(16, 185, 129, 0.6); /* emerald-500/60 */
+}
+
+.day.intensity4 {
+  background: rgba(16, 185, 129, 0.8); /* emerald-500/80 */
+}
+
+/* Сегодня */
+.day.today {
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.5); /* emerald-400/50 */
+}
+
+/* Выбранный день */
+.day.selected {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Легенда */
+.legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 16px;
+}
+
+.legendLabel {
+  font-size: 10px;
+  color: rgba(148, 163, 184, 1); /* slate-400 */
+}
+
+.legendLabel.left {
+  margin-right: 8px;
+}
+
+.legendLabel.right {
+  margin-left: 8px;
+}
+
+.legendBox {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* Tooltip для выбранного дня */
+.selectedInfo {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+
+  /* Анимация появления */
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 200ms ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.selectedDate {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 4px;
+}
+
+.selectedCount {
+  font-size: 12px;
+  color: rgba(148, 163, 184, 1); /* slate-400 */
+}
+
+.selectedHabits {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.habitBadge {
+  font-size: 12px;
+  background: rgba(16, 185, 129, 0.2); /* emerald-500/20 */
+  color: rgba(52, 211, 153, 1); /* emerald-400 */
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
