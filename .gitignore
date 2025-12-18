@@ -49,3 +49,7 @@ Thumbs.db
 
 # HTTPS Certificates (mkcert)
 certificates/
+
+# Temp/reference folders
+habitflow-ai*/
+repomix-output.xml

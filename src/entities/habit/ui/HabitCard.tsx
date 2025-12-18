@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { format, addDays, isSameDay, parseISO, isAfter, startOfDay } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Habit, DayStatus } from '../model/types';
 import styles from './HabitCard.module.css';
 
@@ -12,16 +12,79 @@ import styles from './HabitCard.module.css';
 interface HabitCardProps {
   habit: Habit;
   onToggleDate: (habitId: string, date: Date) => void;
+  onUpdateTitle?: (habitId: string, newTitle: string) => void;
+  onDelete?: (habitId: string) => void;
   weekStart: Date;
 }
+
+// Длительность long press в мс
+const LONG_PRESS_DURATION = 500;
 
 // Тип анимации при клике
 type AnimationType = 'complete' | 'uncomplete' | null;
 
-export function HabitCard({ habit, onToggleDate, weekStart }: HabitCardProps) {
+export function HabitCard({ habit, onToggleDate, onUpdateTitle, onDelete, weekStart }: HabitCardProps) {
   // Храним анимацию для каждого дня: dateStr -> тип анимации
   const [animatingDays, setAnimatingDays] = useState<Record<string, AnimationType>>({});
+
+  // Режим редактирования
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(habit.title);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Long press detection
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  const isLongPress = useRef(false);
+
   const today = startOfDay(new Date());
+
+  // Обработчики long press
+  const handlePressStart = useCallback(() => {
+    isLongPress.current = false;
+    longPressTimer.current = setTimeout(() => {
+      isLongPress.current = true;
+      // Вибрация при входе в режим редактирования (если поддерживается)
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      setIsEditing(true);
+      setEditTitle(habit.title);
+    }, LONG_PRESS_DURATION);
+  }, [habit.title]);
+
+  const handlePressEnd = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  // Сохранение изменений
+  const handleSave = useCallback(() => {
+    const trimmed = editTitle.trim();
+    if (trimmed && trimmed !== habit.title && onUpdateTitle) {
+      onUpdateTitle(habit.id, trimmed);
+    }
+    setIsEditing(false);
+    setShowDeleteConfirm(false);
+  }, [editTitle, habit.id, habit.title, onUpdateTitle]);
+
+  // Отмена редактирования
+  const handleCancel = useCallback(() => {
+    setIsEditing(false);
+    setEditTitle(habit.title);
+    setShowDeleteConfirm(false);
+  }, [habit.title]);
+
+  // Удаление
+  const handleDelete = useCallback(() => {
+    if (showDeleteConfirm && onDelete) {
+      onDelete(habit.id);
+      setIsEditing(false);
+    } else {
+      setShowDeleteConfirm(true);
+    }
+  }, [showDeleteConfirm, onDelete, habit.id]);
 
   // Генерируем 7 дней выбранной недели
   const days: DayStatus[] = Array.from({ length: 7 }).map((_, i) => {
@@ -64,46 +127,109 @@ export function HabitCard({ habit, onToggleDate, weekStart }: HabitCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={styles.card}
+      className={`${styles.card} ${isEditing ? styles.editing : ''}`}
       data-category={habit.category}
+      onTouchStart={handlePressStart}
+      onTouchEnd={handlePressEnd}
+      onTouchCancel={handlePressEnd}
+      onMouseDown={handlePressStart}
+      onMouseUp={handlePressEnd}
+      onMouseLeave={handlePressEnd}
     >
-      {/* Header: название слева, streak справа */}
-      <div className={styles.header}>
-        <h3 className={styles.title}>{habit.title}</h3>
-        {habit.streak > 0 && (
-          <span className={styles.streak}>{streakText}</span>
-        )}
-      </div>
+      <AnimatePresence mode="wait">
+        {isEditing ? (
+          // Режим редактирования
+          <motion.div
+            key="editing"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={styles.editMode}
+          >
+            {/* Input для редактирования названия */}
+            <input
+              type="text"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              className={styles.editInput}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSave();
+                if (e.key === 'Escape') handleCancel();
+              }}
+              placeholder="Название привычки"
+            />
 
-      {/* Days Grid */}
-      <div className={styles.daysGrid}>
-        {days.map((day) => {
-          const isFuture = isAfter(startOfDay(day.date), today);
-          const animState = animatingDays[day.dateStr];
-
-          const dayButtonClasses = [
-            styles.dayButton,
-            day.isCompleted && styles.completed,
-            day.isToday && !day.isCompleted && styles.today,
-            isFuture && styles.future,
-            animState === 'complete' && styles.justCompleted,
-            animState === 'uncomplete' && styles.justUncompleted,
-          ].filter(Boolean).join(' ');
-
-          return (
-            <div key={day.dateStr} className={styles.dayColumn}>
-              <span className={styles.dayName}>{day.dayName}</span>
+            {/* Кнопки действий */}
+            <div className={styles.editActions}>
               <button
-                onClick={() => !isFuture && handleDayClick(day)}
-                disabled={isFuture}
-                className={dayButtonClasses}
+                onClick={handleDelete}
+                className={`${styles.editButton} ${styles.deleteButton} ${showDeleteConfirm ? styles.confirmDelete : ''}`}
               >
-                {day.dayNumber}
+                {showDeleteConfirm ? 'Точно удалить?' : 'Удалить'}
               </button>
+              <div className={styles.editButtonGroup}>
+                <button onClick={handleCancel} className={`${styles.editButton} ${styles.cancelButton}`}>
+                  Отмена
+                </button>
+                <button
+                  onClick={handleSave}
+                  className={`${styles.editButton} ${styles.saveButton}`}
+                  disabled={!editTitle.trim()}
+                >
+                  Сохранить
+                </button>
+              </div>
             </div>
-          );
-        })}
-      </div>
+          </motion.div>
+        ) : (
+          // Обычный режим
+          <motion.div
+            key="normal"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Header: название слева, streak справа */}
+            <div className={styles.header}>
+              <h3 className={styles.title}>{habit.title}</h3>
+              {habit.streak > 0 && (
+                <span className={styles.streak}>{streakText}</span>
+              )}
+            </div>
+
+            {/* Days Grid */}
+            <div className={styles.daysGrid}>
+              {days.map((day) => {
+                const isFuture = isAfter(startOfDay(day.date), today);
+                const animState = animatingDays[day.dateStr];
+
+                const dayButtonClasses = [
+                  styles.dayButton,
+                  day.isCompleted && styles.completed,
+                  day.isToday && !day.isCompleted && styles.today,
+                  isFuture && styles.future,
+                  animState === 'complete' && styles.justCompleted,
+                  animState === 'uncomplete' && styles.justUncompleted,
+                ].filter(Boolean).join(' ');
+
+                return (
+                  <div key={day.dateStr} className={styles.dayColumn}>
+                    <span className={styles.dayName}>{day.dayName}</span>
+                    <button
+                      onClick={() => !isFuture && handleDayClick(day)}
+                      disabled={isFuture}
+                      className={dayButtonClasses}
+                    >
+                      {day.dayNumber}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
