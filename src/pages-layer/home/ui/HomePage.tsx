@@ -7,7 +7,7 @@ import { Plus, ChevronLeft, ChevronRight, Calendar, ChevronDown } from 'lucide-r
 import { motion } from 'framer-motion';
 
 import { useTelegramUser } from '@/entities/user';
-import { useHabits, useCreateHabit, useToggleHabitCompletion } from '@/entities/habit';
+import { useHabits, useCreateHabit, useToggleHabitCompletion, useUpdateHabitTitle, useDeleteHabit } from '@/entities/habit';
 import { CategoryType } from '@/shared/config';
 import { HabitList } from '@/widgets/habit-list';
 import { BottomNav, TabType } from '@/widgets/bottom-nav';
@@ -33,6 +33,8 @@ export function HomePage() {
   const { data: habits = [], isLoading: habitsLoading } = useHabits(telegramId);
   const createHabit = useCreateHabit();
   const toggleHabit = useToggleHabitCompletion();
+  const updateHabitTitle = useUpdateHabitTitle();
+  const deleteHabit = useDeleteHabit();
 
   // Проверка: текущая ли это неделя
   const isCurrentWeek = isSameWeek(selectedWeekStart, new Date(), { weekStartsOn: 1 });
@@ -67,6 +69,25 @@ export function HomePage() {
       toggleHabit.mutate({
         habit_id: habitId,
         date: format(date, 'yyyy-MM-dd'),
+        telegram_id: telegramId,
+      });
+    }
+  };
+
+  const handleUpdateTitle = (habitId: string, newTitle: string) => {
+    if (telegramId) {
+      updateHabitTitle.mutate({
+        habit_id: habitId,
+        title: newTitle,
+        telegram_id: telegramId,
+      });
+    }
+  };
+
+  const handleDeleteHabit = (habitId: string) => {
+    if (telegramId) {
+      deleteHabit.mutate({
+        habit_id: habitId,
         telegram_id: telegramId,
       });
     }
@@ -163,6 +184,8 @@ export function HomePage() {
                 <HabitList
                   habits={habits}
                   onToggleDate={handleToggleDate}
+                  onUpdateTitle={handleUpdateTitle}
+                  onDelete={handleDeleteHabit}
                   weekStart={selectedWeekStart}
                 />
               )}

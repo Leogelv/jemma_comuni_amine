@@ -226,6 +226,49 @@ export function useToggleHabitCompletion() {
 }
 
 // ============================================
+// useUpdateHabitTitle — обновление названия привычки
+// ============================================
+
+export function useUpdateHabitTitle() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { habit_id: string; title: string; telegram_id: number }) => {
+      const response = await fetch('/api/habits', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ habit_id: data.habit_id, title: data.title }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update habit');
+      }
+
+      return response.json();
+    },
+    // Optimistic update
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: ['habits', variables.telegram_id] });
+
+      const previousHabits = queryClient.getQueryData<Habit[]>(['habits', variables.telegram_id]);
+
+      // Обновляем название в UI сразу
+      queryClient.setQueryData<Habit[]>(['habits', variables.telegram_id], (old = []) =>
+        old.map((h) => (h.id === variables.habit_id ? { ...h, title: variables.title } : h))
+      );
+
+      return { previousHabits };
+    },
+    // Rollback при ошибке
+    onError: (_error, variables, context) => {
+      if (context?.previousHabits) {
+        queryClient.setQueryData(['habits', variables.telegram_id], context.previousHabits);
+      }
+    },
+  });
+}
+
+// ============================================
 // useDeleteHabit — удаление привычки
 // ============================================
 
