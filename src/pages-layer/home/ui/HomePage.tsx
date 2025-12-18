@@ -1,29 +1,31 @@
 'use client';
 
 import React, { useState } from 'react';
-import { format } from 'date-fns';
+import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, isSameWeek } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { Plus, Trophy } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, Calendar, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import { useTelegramUser } from '@/entities/user';
 import { useHabits, useCreateHabit, useToggleHabitCompletion } from '@/entities/habit';
 import { CategoryType } from '@/shared/config';
 import { HabitList } from '@/widgets/habit-list';
-import { StatsPanel } from '@/widgets/stats-panel';
 import { BottomNav, TabType } from '@/widgets/bottom-nav';
 import { AddHabitModal } from '@/features/add-habit';
-import { SkeletonCard, SkeletonStats } from '@/shared/ui';
+import { SkeletonCard } from '@/shared/ui';
 import { CalendarView } from './CalendarView';
 import { SettingsView } from './SettingsView';
 import { ProgressView } from './ProgressView';
 import styles from './HomePage.module.css';
 
-// HomePage — главная страница приложения с табами
+// HomePage — главная страница с навигацией по неделям
 
 export function HomePage() {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedWeekStart, setSelectedWeekStart] = useState(() =>
+    startOfWeek(new Date(), { weekStartsOn: 1 })
+  );
 
   const { user, isLoading: userLoading } = useTelegramUser();
   const telegramId = user?.telegram_id;
@@ -31,6 +33,24 @@ export function HomePage() {
   const { data: habits = [], isLoading: habitsLoading } = useHabits(telegramId);
   const createHabit = useCreateHabit();
   const toggleHabit = useToggleHabitCompletion();
+
+  // Проверка: текущая ли это неделя
+  const isCurrentWeek = isSameWeek(selectedWeekStart, new Date(), { weekStartsOn: 1 });
+
+  // Навигация по неделям
+  const goToPreviousWeek = () => {
+    setSelectedWeekStart(prev => subWeeks(prev, 1));
+  };
+
+  const goToNextWeek = () => {
+    if (!isCurrentWeek) {
+      setSelectedWeekStart(prev => addWeeks(prev, 1));
+    }
+  };
+
+  // Форматирование диапазона дат недели
+  const weekEnd = endOfWeek(selectedWeekStart, { weekStartsOn: 1 });
+  const weekRangeText = `${format(selectedWeekStart, 'd', { locale: ru })} – ${format(weekEnd, 'd MMMM', { locale: ru })}`;
 
   const handleAddHabit = (title: string, category: CategoryType) => {
     if (telegramId) {
@@ -66,29 +86,51 @@ export function HomePage() {
             animate={{ opacity: 1 }}
             className={styles.tabContent}
           >
-            {/* Header */}
+            {/* Habitflow-style Header */}
             <div className={styles.header}>
-              <div className={styles.headerContent}>
-                <div className={styles.headerText}>
-                  <p>
-                    {format(new Date(), 'EEEE, d MMMM', { locale: ru })}
-                  </p>
-                  <h1>Anti Self-Deception</h1>
-                </div>
-                <div className={styles.pointsBadge}>
-                  <Trophy size={16} />
-                  <span>{totalPoints}</span>
-                </div>
+              <h1 className={styles.pageTitle}>Привычки</h1>
+              <div className={styles.headerActions}>
+                <button
+                  onClick={() => setActiveTab('history')}
+                  className={styles.headerButton}
+                  aria-label="Календарь"
+                >
+                  <Calendar size={24} />
+                </button>
+                <button
+                  className={styles.headerButton}
+                  aria-label="Меню"
+                >
+                  <ChevronDown size={24} />
+                </button>
               </div>
             </div>
 
-            {/* Stats Mini Panel */}
-            <div className={styles.statsSection}>
-              {isLoading ? (
-                <SkeletonStats />
-              ) : (
-                <StatsPanel habits={habits} totalPoints={totalPoints} />
-              )}
+            {/* Week Navigation */}
+            <div className={styles.weekNav}>
+              <button
+                onClick={goToPreviousWeek}
+                className={styles.navButton}
+                aria-label="Предыдущая неделя"
+              >
+                <ChevronLeft size={20} />
+              </button>
+
+              <div className={styles.weekInfo}>
+                <span className={styles.weekRange}>{weekRangeText}</span>
+                {isCurrentWeek && (
+                  <span className={styles.currentWeekBadge}>Текущая</span>
+                )}
+              </div>
+
+              <button
+                onClick={goToNextWeek}
+                className={`${styles.navButton} ${isCurrentWeek ? styles.navButtonDisabled : ''}`}
+                disabled={isCurrentWeek}
+                aria-label="Следующая неделя"
+              >
+                <ChevronRight size={20} />
+              </button>
             </div>
 
             {/* Habits List */}
@@ -118,7 +160,11 @@ export function HomePage() {
                   </button>
                 </motion.div>
               ) : (
-                <HabitList habits={habits} onToggleDate={handleToggleDate} />
+                <HabitList
+                  habits={habits}
+                  onToggleDate={handleToggleDate}
+                  weekStart={selectedWeekStart}
+                />
               )}
             </div>
 

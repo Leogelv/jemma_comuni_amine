@@ -1,81 +1,54 @@
-/* HabitCard.module.css - Минималистичный glassmorphism дизайн */
+/* HabitCard.module.css — Habitflow-AI Style */
 
-/* CSS переменные для категорий */
-:root {
-  /* Sport */
-  --color-sport: #f97316;
-  --color-sport-bg: rgba(249, 115, 22, 0.2);
-  --color-sport-border: rgba(249, 115, 22, 0.3);
-
-  /* Nutrition */
-  --color-nutrition: #14b8a6;
-  --color-nutrition-bg: rgba(20, 184, 166, 0.2);
-  --color-nutrition-border: rgba(20, 184, 166, 0.3);
-
-  /* Regime */
-  --color-regime: #8b5cf6;
-  --color-regime-bg: rgba(139, 92, 246, 0.2);
-  --color-regime-border: rgba(139, 92, 246, 0.3);
-
-  /* Other */
-  --color-other: #64748b;
-  --color-other-bg: rgba(100, 116, 139, 0.2);
-  --color-other-border: rgba(100, 116, 139, 0.3);
-}
-
-/* Карточка привычки */
+/* Карточка с цветным фоном по категории */
 .card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(32px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 16px;
-  position: relative;
-  transition: all 0.3s ease;
+  border-radius: 24px;
+  padding: 20px;
+  margin-bottom: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.card:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-/* Динамические цвета для категорий через data-атрибуты */
+/* Цвета категорий — Sport (жёлтый) */
 .card[data-category="sport"] {
-  --card-color: var(--color-sport);
-  --card-bg: var(--color-sport-bg);
-  --card-border: var(--color-sport-border);
+  background: #FEF9E7;
+  --title-color: #D97706;
+  --bubble-bg: #FEF3C7;
+  --bubble-text: #D97706;
+  --active-bg: #FBBF24;
+  --active-shadow: rgba(251, 191, 36, 0.4);
 }
 
+/* Nutrition (серый) */
 .card[data-category="nutrition"] {
-  --card-color: var(--color-nutrition);
-  --card-bg: var(--color-nutrition-bg);
-  --card-border: var(--color-nutrition-border);
+  background: #F3F4F6;
+  --title-color: #4B5563;
+  --bubble-bg: #E5E7EB;
+  --bubble-text: #6B7280;
+  --active-bg: #6B7280;
+  --active-shadow: rgba(107, 114, 128, 0.4);
 }
 
+/* Regime/Sleep (голубой) */
 .card[data-category="regime"] {
-  --card-color: var(--color-regime);
-  --card-bg: var(--color-regime-bg);
-  --card-border: var(--color-regime-border);
+  background: #EFF6FF;
+  --title-color: #2563EB;
+  --bubble-bg: #DBEAFE;
+  --bubble-text: #3B82F6;
+  --active-bg: #60A5FA;
+  --active-shadow: rgba(96, 165, 250, 0.4);
 }
 
+/* Other (фиолетовый) */
 .card[data-category="other"] {
-  --card-color: var(--color-other);
-  --card-bg: var(--color-other-bg);
-  --card-border: var(--color-other-border);
+  background: #F5F3FF;
+  --title-color: #7C3AED;
+  --bubble-bg: #EDE9FE;
+  --bubble-text: #8B5CF6;
+  --active-bg: #A78BFA;
+  --active-shadow: rgba(167, 139, 250, 0.4);
 }
 
-/* Вертикальная полоса слева (цветовой акцент) */
-.categoryAccent {
-  position: absolute;
-  left: 0;
-  top: 12px;
-  bottom: 12px;
-  width: 2px;
-  border-radius: 9999px;
-  background: var(--card-color);
-}
-
-/* Header секция */
+/* Header: название + streak */
 .header {
   display: flex;
   justify-content: space-between;
@@ -83,155 +56,176 @@
   margin-bottom: 16px;
 }
 
-.headerLeft {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* Иконка категории */
-.categoryIcon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  background: var(--card-bg);
-}
-
-/* Информация о привычке */
-.habitInfo {
-  display: flex;
-  flex-direction: column;
-}
-
-.habitTitle {
-  font-size: 16px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
-  line-height: 1.2;
-  margin: 0;
-}
-
-.habitMeta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 2px;
-}
-
-.points {
-  font-size: 14px;
-  color: #10b981;
-}
-
-/* Streak badge */
-.streakBadge {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 9999px;
-  background: rgba(249, 115, 22, 0.2);
-  border: 1px solid rgba(249, 115, 22, 0.3);
-}
-
-.streakIcon {
-  color: #fb923c;
-  width: 12px;
-  height: 12px;
-}
-
-.streakCount {
-  font-size: 12px;
+.title {
+  font-size: 20px;
   font-weight: 700;
-  color: #fb923c;
+  color: var(--title-color);
+  margin: 0;
+  letter-spacing: -0.02em;
 }
 
-/* Days grid */
+.streak {
+  font-size: 12px;
+  font-weight: 500;
+  color: #9CA3AF;
+  white-space: nowrap;
+}
+
+/* Days Grid — flexbox для равномерного распределения */
 .daysGrid {
   display: flex;
-  gap: 8px;
-  margin-top: 12px;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .dayColumn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 
 .dayName {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
-  color: #64748b;
-  text-transform: uppercase;
+  color: #9CA3AF;
 }
 
-/* Day button */
+/* Breathing animation — еле заметная пульсация */
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes breatheCompleted {
+  0%, 100% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+/* Ripple effect при нажатии */
+@keyframes ripple {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes celebrate {
+  0% {
+    transform: scale(1.1);
+  }
+  25% {
+    transform: scale(1.25) rotate(5deg);
+  }
+  50% {
+    transform: scale(1.15) rotate(-3deg);
+  }
+  75% {
+    transform: scale(1.2) rotate(2deg);
+  }
+  100% {
+    transform: scale(1.1) rotate(0deg);
+  }
+}
+
+@keyframes uncomplete {
+  0% {
+    transform: scale(1.1);
+  }
+  30% {
+    transform: scale(0.85);
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* День-кнопка — круглая 44x44 (увеличено) */
 .dayButton {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  color: #94a3b8;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
   cursor: pointer;
-  outline: none;
+  transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  background: var(--bubble-bg);
+  color: var(--bubble-text);
+  -webkit-tap-highlight-color: transparent;
+  animation: breathe 4s ease-in-out infinite;
+  position: relative;
+  overflow: visible;
+}
+
+/* Ripple pseudo-element */
+.dayButton::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--active-bg);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .dayButton:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
+  opacity: 0.9;
 }
 
-.dayButton:focus {
-  outline: none;
-}
-
-/* Completed day */
-.dayButton.completed {
-  background: rgba(16, 185, 129, 0.3);
-  border-color: rgba(16, 185, 129, 0.5);
-  color: #6ee7b7;
-}
-
-/* Today (not completed) */
+/* Сегодня (не выполнено) — кольцо */
 .dayButton.today {
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #D1D5DB;
 }
 
-/* Future day (disabled) */
-.dayButton:disabled {
+/* Выполнено — залитый с тенью и увеличением + breathing */
+.dayButton.completed {
+  background: var(--active-bg);
+  color: white;
+  box-shadow: 0 4px 14px var(--active-shadow);
+  animation: breatheCompleted 3s ease-in-out infinite;
+}
+
+/* Анимация при активации */
+.dayButton.justCompleted {
+  animation: celebrate 0.5s ease-out forwards;
+}
+
+.dayButton.justCompleted::after {
+  animation: ripple 0.6s ease-out forwards;
+}
+
+/* Анимация при деактивации */
+.dayButton.justUncompleted {
+  animation: uncomplete 0.4s ease-out forwards;
+}
+
+/* Будущий день */
+.dayButton.future {
   opacity: 0.4;
   cursor: not-allowed;
+  animation: none;
 }
 
-/* Анимация checkmark */
-@keyframes checkmarkEnter {
-  0% {
-    transform: scale(0) rotate(-45deg);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2) rotate(0deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-}
-
-.checkmark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.dayButton:disabled {
+  cursor: not-allowed;
 }

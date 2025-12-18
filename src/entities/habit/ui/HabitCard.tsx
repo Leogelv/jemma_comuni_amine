@@ -1,45 +1,64 @@
 'use client';
 
 import React, { useState } from 'react';
-import { format, subDays, isSameDay, parseISO } from 'date-fns';
+import { format, addDays, isSameDay, parseISO, isAfter, startOfDay } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Flame } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Habit, DayStatus } from '../model/types';
-import { getCategory } from '@/shared/config';
 import styles from './HabitCard.module.css';
 
-// HabitCard — красивый минималистичный дизайн
+// HabitCard — дизайн как в habitflow-ai
 
 interface HabitCardProps {
   habit: Habit;
   onToggleDate: (habitId: string, date: Date) => void;
+  weekStart: Date;
 }
 
-export function HabitCard({ habit, onToggleDate }: HabitCardProps) {
-  const [tappedDay, setTappedDay] = useState<string | null>(null);
+// Тип анимации при клике
+type AnimationType = 'complete' | 'uncomplete' | null;
 
-  // Генерируем последние 7 дней включая сегодня
+export function HabitCard({ habit, onToggleDate, weekStart }: HabitCardProps) {
+  // Храним анимацию для каждого дня: dateStr -> тип анимации
+  const [animatingDays, setAnimatingDays] = useState<Record<string, AnimationType>>({});
+  const today = startOfDay(new Date());
+
+  // Генерируем 7 дней выбранной недели
   const days: DayStatus[] = Array.from({ length: 7 }).map((_, i) => {
-    const d = subDays(new Date(), 6 - i);
+    const d = addDays(weekStart, i);
     const dateStr = format(d, 'yyyy-MM-dd');
     return {
       date: d,
       dateStr,
       isCompleted: habit.completed_dates.some(cd => isSameDay(parseISO(cd), d)),
-      isToday: isSameDay(d, new Date()),
-      dayName: format(d, 'EEEEEE', { locale: ru }).toUpperCase(),
+      isToday: isSameDay(d, today),
+      dayName: format(d, 'EEEEEE', { locale: ru }).charAt(0).toUpperCase() + format(d, 'EEEEEE', { locale: ru }).slice(1),
       dayNumber: format(d, 'd'),
     };
   });
 
-  const category = getCategory(habit.category);
-
   const handleDayClick = (day: DayStatus) => {
-    setTappedDay(day.dateStr);
+    // Определяем тип анимации (до toggle)
+    const animType: AnimationType = day.isCompleted ? 'uncomplete' : 'complete';
+
+    // Запускаем анимацию
+    setAnimatingDays(prev => ({ ...prev, [day.dateStr]: animType }));
+
+    // Вызываем toggle
     onToggleDate(habit.id, day.date);
-    setTimeout(() => setTappedDay(null), 400);
+
+    // Убираем анимацию через 600ms
+    setTimeout(() => {
+      setAnimatingDays(prev => ({ ...prev, [day.dateStr]: null }));
+    }, 600);
   };
+
+  // Streak текст
+  const streakText = habit.streak === 1
+    ? '1 день подряд'
+    : habit.streak > 1
+      ? `${habit.streak} ${habit.streak < 5 ? 'дня' : 'дней'} подряд`
+      : '';
 
   return (
     <motion.div
@@ -48,93 +67,39 @@ export function HabitCard({ habit, onToggleDate }: HabitCardProps) {
       className={styles.card}
       data-category={habit.category}
     >
-      {/* Цветовой акцент слева (вертикальная полоса) */}
-      <div className={styles.categoryAccent} />
-
-      {/* Header */}
+      {/* Header: название слева, streak справа */}
       <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <div className={styles.categoryIcon}>
-            {category.emoji}
-          </div>
-          <div className={styles.habitInfo}>
-            <h3 className={styles.habitTitle}>
-              {habit.title}
-            </h3>
-            <div className={styles.habitMeta}>
-              <span className={styles.points}>
-                +{category.points} очков
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Streak Badge */}
+        <h3 className={styles.title}>{habit.title}</h3>
         {habit.streak > 0 && (
-          <div className={styles.streakBadge}>
-            <Flame size={12} className={styles.streakIcon} />
-            <span className={styles.streakCount}>
-              {habit.streak}
-            </span>
-          </div>
+          <span className={styles.streak}>{streakText}</span>
         )}
       </div>
 
       {/* Days Grid */}
       <div className={styles.daysGrid}>
         {days.map((day) => {
-          // Определяем, является ли день будущим (не включая сегодня)
-          const isFuture = day.date > new Date() && !day.isToday;
+          const isFuture = isAfter(startOfDay(day.date), today);
+          const animState = animatingDays[day.dateStr];
 
-          // Собираем CSS классы для кнопки дня
           const dayButtonClasses = [
             styles.dayButton,
             day.isCompleted && styles.completed,
             day.isToday && !day.isCompleted && styles.today,
+            isFuture && styles.future,
+            animState === 'complete' && styles.justCompleted,
+            animState === 'uncomplete' && styles.justUncompleted,
           ].filter(Boolean).join(' ');
 
           return (
             <div key={day.dateStr} className={styles.dayColumn}>
-              <span className={styles.dayName}>
-                {day.dayName}
-              </span>
-              <motion.button
+              <span className={styles.dayName}>{day.dayName}</span>
+              <button
                 onClick={() => !isFuture && handleDayClick(day)}
-                whileTap={!isFuture ? { scale: 0.85 } : {}}
-                animate={tappedDay === day.dateStr ? { scale: 1.15 } : { scale: 1 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
                 disabled={isFuture}
                 className={dayButtonClasses}
               >
-                <AnimatePresence mode="wait">
-                  {day.isCompleted ? (
-                    <motion.span
-                      key="check"
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      transition={{
-                        type: 'spring',
-                        stiffness: 500,
-                        damping: 20,
-                        duration: 0.3
-                      }}
-                      className={styles.checkmark}
-                    >
-                      <Check size={14} strokeWidth={2.5} />
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      key="number"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
-                      {day.dayNumber}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.button>
+                {day.dayNumber}
+              </button>
             </div>
           );
         })}

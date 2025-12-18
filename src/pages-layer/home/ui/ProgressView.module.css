@@ -1,235 +1,232 @@
-/* ProgressView.module.css */
+/* ProgressView.module.css — Apple Beautiful Light Design */
 
-/* Основной контейнер с отступами */
 .container {
   min-height: 100vh;
-  padding-bottom: 8rem;
-  padding-top: calc(0.5rem + env(safe-area-inset-top));
+  padding-bottom: 100px;
+  background: var(--color-bg-secondary);
 }
 
 /* Header */
 .header {
-  padding: 3rem 1rem 1rem;
+  padding: 24px 20px 16px;
+  padding-top: calc(24px + env(safe-area-inset-top));
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--card-border);
 }
 
 .header h2 {
-  font-size: 1.5rem;
+  font-size: 28px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--color-text);
+  letter-spacing: -0.03em;
   margin: 0;
 }
 
 /* Main Stats Grid (2 колонки) */
 .statsGrid {
-  padding: 0 1rem;
-  margin-bottom: 1rem;
+  padding: 16px 20px;
 }
 
 .statsGridInner {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
+  gap: 12px;
 }
 
 .statCard {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(32px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  padding: 1rem;
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  padding: 16px;
+  box-shadow: var(--card-shadow);
 }
 
 .statIcon {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.75rem;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 12px;
 }
 
 /* Цвета для иконок */
 .statIcon.amber {
-  background: rgba(245, 158, 11, 0.2);
-  color: rgb(251, 191, 36);
+  background: #FFF4E6;
+  color: #FFB800;
 }
 
 .statIcon.orange {
-  background: rgba(249, 115, 22, 0.2);
-  color: rgb(251, 146, 60);
+  background: var(--color-streak-bg);
+  color: var(--color-streak);
 }
 
 .statIcon.emerald {
-  background: rgba(16, 185, 129, 0.2);
-  color: rgb(52, 211, 153);
+  background: var(--color-success-bg);
+  color: var(--color-success);
 }
 
 .statIcon.indigo {
-  background: rgba(99, 102, 241, 0.2);
-  color: rgb(129, 140, 248);
+  background: var(--color-regime-bg);
+  color: var(--color-regime);
 }
 
 .statCard .value {
-  font-size: 1.5rem;
+  font-size: 28px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.95);
-  margin-bottom: 0.125rem;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  margin-bottom: 2px;
 }
 
 .statCard .label {
-  font-size: 0.875rem;
-  color: rgb(148, 163, 184);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
 }
 
 /* Charts/Blocks секции */
 .section {
-  padding: 0 1rem;
-  margin-bottom: 1rem;
+  padding: 0 20px;
+  margin-bottom: 16px;
 }
 
 /* Achievements секция */
 .achievementsCard {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(32px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  padding: 1rem;
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  box-shadow: var(--card-shadow);
 }
 
 .achievementsCard h3 {
-  font-size: 1rem;
+  font-size: 17px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
-  margin: 0 0 1rem 0;
+  color: var(--color-text);
+  margin: 0 0 16px 0;
 }
 
 .achievementsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
+  gap: 12px;
 }
 
 .achievementItem {
-  border-radius: 0.75rem;
-  padding: 1rem;
-  transition: all 0.2s;
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  transition: all var(--transition-base);
 }
 
 .achievementItem.unlocked {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-bg-secondary);
 }
 
 .achievementItem.locked {
-  background: rgba(255, 255, 255, 0.05);
-  opacity: 0.5;
+  background: var(--color-bg-tertiary);
+  opacity: 0.6;
 }
 
 .achievementIcon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 9999px;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 10px;
 }
 
 .achievementIcon.unlocked {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
 }
 
 .achievementIcon.locked {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-secondary);
 }
 
 /* Цвета для достижений */
 .achievementIcon svg.orange {
-  color: rgb(251, 146, 60);
+  color: var(--color-streak);
 }
 
 .achievementIcon svg.amber {
-  color: rgb(251, 191, 36);
+  color: #FFB800;
 }
 
 .achievementIcon svg.indigo {
-  color: rgb(129, 140, 248);
+  color: var(--color-regime);
 }
 
 .achievementIcon svg.violet {
-  color: rgb(167, 139, 250);
+  color: var(--color-other);
 }
 
 .achievementIcon svg.muted {
-  color: rgb(71, 85, 105);
+  color: var(--color-text-muted);
 }
 
 .achievementItem h4 {
-  font-size: 0.875rem;
+  font-size: 15px;
   font-weight: 600;
-  margin: 0 0 0.125rem 0;
+  margin: 0 0 4px 0;
 }
 
 .achievementItem h4.unlocked {
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--color-text);
 }
 
 .achievementItem h4.locked {
-  color: rgb(148, 163, 184);
+  color: var(--color-text-secondary);
 }
 
 .achievementItem p {
-  font-size: 0.75rem;
-  color: rgb(148, 163, 184);
+  font-size: 13px;
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
 /* Category Stats */
 .categoryStatsCard {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(32px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  padding: 1rem;
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  box-shadow: var(--card-shadow);
 }
 
 .categoryStatsCard h3 {
-  font-size: 1rem;
+  font-size: 17px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
-  margin: 0 0 1rem 0;
+  color: var(--color-text);
+  margin: 0 0 16px 0;
 }
 
 .categoryStatsList {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .categoryStatItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem;
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.categoryStatItem:last-child {
-  border-bottom: none;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-secondary);
 }
 
 .categoryStatLeft {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
 .categoryStatBar {
-  width: 0.25rem;
-  height: 2rem;
-  border-radius: 9999px;
+  width: 4px;
+  height: 32px;
+  border-radius: var(--radius-full);
 }
 
 .categoryStatInfo {
@@ -240,21 +237,22 @@
 .categoryStatName {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .categoryStatName span:first-child {
-  font-size: 1rem;
+  font-size: 18px;
 }
 
 .categoryStatName span:last-child {
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .categoryStatMeta {
-  font-size: 0.75rem;
-  color: rgb(100, 116, 139);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
 }
 
 .categoryStatRight {
@@ -262,11 +260,12 @@
 }
 
 .categoryStatValue {
+  font-size: 17px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--color-text);
 }
 
 .categoryStatLabel {
-  font-size: 0.75rem;
-  color: rgb(100, 116, 139);
+  font-size: 12px;
+  color: var(--color-text-secondary);
 }

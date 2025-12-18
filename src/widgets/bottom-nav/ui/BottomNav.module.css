@@ -1,4 +1,4 @@
-/* BottomNav — Фиксированная навигация с glassmorphism */
+/* BottomNav — Apple-style Tab Bar */
 
 .nav {
   position: fixed;
@@ -6,14 +6,10 @@
   left: 0;
   right: 0;
   z-index: 50;
-
-  /* Glassmorphism эффект */
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-
-  /* Safe area для iPhone */
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--card-border);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -21,7 +17,9 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  height: 64px;
+  height: 56px;
+  max-width: 480px;
+  margin: 0 auto;
 }
 
 .button {
@@ -30,43 +28,42 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 8px 16px;
-
-  /* Transitions */
-  transition: all 200ms ease-out;
-
-  /* По умолчанию — приглушённый */
-  color: rgba(100, 116, 139, 1); /* slate-500 */
+  gap: 2px;
+  padding: 8px 20px;
+  transition: all var(--transition-base);
+  color: var(--color-text-muted);
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .button:hover {
-  color: rgba(255, 255, 255, 1);
+  color: var(--color-text-secondary);
 }
 
 /* Активная вкладка */
 .button.active {
-  color: rgba(52, 211, 153, 1); /* emerald-400 */
+  color: var(--color-accent);
 }
 
 .iconWrapper {
-  padding: 6px;
-  border-radius: 12px;
-  transition: all 200ms ease-out;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
 }
 
 .iconWrapper.active {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-accent-bg);
 }
 
 .label {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: all 200ms ease-out;
+  transition: all var(--transition-base);
 }
 
 .label.active {
-  font-weight: 700;
+  font-weight: 600;
+  color: var(--color-accent);
 }

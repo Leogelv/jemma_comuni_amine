@@ -1,6 +1,6 @@
 /* ========================================
    ГЛОБАЛЬНЫЕ СТИЛИ: Anti Self-Deception
-   Базовые стили, reset, утилиты
+   Apple Beautiful Light Design System
    ======================================== */
 
 /* Импорт дизайн-токенов и анимаций */
@@ -8,7 +8,7 @@
 @import "./animations.css";
 
 /* ========================================
-   БАЗОВЫЕ СТИЛИ
+   БАЗОВЫЕ СТИЛИ — Светлая Apple-тема
    ======================================== */
 
 * {
@@ -24,12 +24,33 @@ body {
 }
 
 body {
-  font-family: system-ui, -apple-system, 'SF Pro Display', 'Segoe UI', sans-serif;
-  background: var(--color-bg);
+  font-family: var(--font-family);
+  background: var(--color-bg-secondary);
   color: var(--color-text);
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+/* ========================================
+   ТИПОГРАФИКА — Apple-style
+   ======================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+h1 { font-size: 34px; line-height: 1.2; }
+h2 { font-size: 28px; line-height: 1.25; }
+h3 { font-size: 22px; line-height: 1.3; }
+h4 { font-size: 20px; line-height: 1.35; }
+
+p {
+  color: var(--color-text-secondary);
   line-height: 1.5;
 }
 
@@ -49,7 +70,7 @@ body {
    УТИЛИТЫ
    ======================================== */
 
-/* Скрытие скроллбара (iOS/Android scroll) */
+/* Скрытие скроллбара */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -64,23 +85,51 @@ body {
   overscroll-behavior: contain;
 }
 
-/* Glassmorphism эффект */
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  transition: all var(--transition-base);
-}
-
-.glass:hover {
-  background: var(--glass-bg-hover);
-  border-color: var(--glass-border-hover);
-}
-
 /* Контейнер с ограниченной шириной */
 .container {
   max-width: var(--content-max-width);
   margin: 0 auto;
   padding: 0 var(--spacing-md);
+}
+
+/* Карточка в светлом стиле */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--card-shadow);
+  transition: box-shadow var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* ========================================
+   КНОПКИ
+   ======================================== */
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ========================================
+   ФОКУСНЫЕ СТИЛИ (Accessibility)
+   ======================================== */
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   SELECTION
+   ======================================== */
+
+::selection {
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
 }

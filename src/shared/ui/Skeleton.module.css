@@ -1,33 +1,36 @@
-/* Skeleton для загрузки с glassmorphism стилем */
+/* Skeleton — Apple Light Design */
 
 .skeleton {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  background: var(--skeleton-bg);
+  animation: shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-bg-tertiary) 50%,
+    var(--color-bg-secondary) 100%
+  );
+  background-size: 200% 100%;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
   }
-  50% {
-    opacity: 0.5;
+  100% {
+    background-position: -200% 0;
   }
 }
 
 /* Варианты Skeleton */
 
-/* Text - для текстовых блоков */
 .variant-text {
-  height: 1rem; /* 16px */
+  height: 16px;
   border-radius: var(--radius-sm);
 }
 
-/* Circular - круглые элементы (аватары, иконки) */
 .variant-circular {
   border-radius: var(--radius-full);
 }
 
-/* Rectangular - прямоугольные блоки (карточки, изображения) */
 .variant-rectangular {
   border-radius: var(--radius-xl);
 }
@@ -38,53 +41,50 @@
 
 /* Skeleton для карточки привычки */
 .card-skeleton {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-lg);
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  box-shadow: var(--card-shadow);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 20px;
 }
 
 .card-header-left {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 14px;
 }
 
 .card-days {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
 }
 
 /* Skeleton для панели статистики */
 .stats-skeleton {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-sm);
+  gap: 12px;
 }
 
 .stat-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-md);
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--card-shadow);
+  text-align: center;
 }
 
 .stat-icon {
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
 }
 
 .stat-value {
-  margin-bottom: 0.25rem;
+  margin-bottom: 4px;
 }

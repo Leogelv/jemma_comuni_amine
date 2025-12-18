@@ -5,15 +5,15 @@ import { HabitCard } from '@/entities/habit/ui/HabitCard';
 import { Habit } from '@/entities/habit';
 import styles from './HabitList.module.css';
 
-// HabitList — контейнер для списка привычек
+// HabitList — контейнер для списка привычек с поддержкой навигации по неделям
 
 interface HabitListProps {
   habits: Habit[];
   onToggleDate: (habitId: string, date: Date) => void;
+  weekStart: Date;
 }
 
-export function HabitList({ habits, onToggleDate }: HabitListProps) {
-  // Пустое состояние обрабатывается в HomePage
+export function HabitList({ habits, onToggleDate, weekStart }: HabitListProps) {
   if (habits.length === 0) {
     return null;
   }
@@ -25,6 +25,7 @@ export function HabitList({ habits, onToggleDate }: HabitListProps) {
           key={habit.id}
           habit={habit}
           onToggleDate={onToggleDate}
+          weekStart={weekStart}
         />
       ))}
     </div>

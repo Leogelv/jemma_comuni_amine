@@ -1,11 +1,11 @@
-/* AddHabitModal.module.css */
+/* AddHabitModal.module.css — Apple Beautiful Light Design */
 
-/* Overlay (затемнённый фон) */
+/* Overlay */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
   z-index: 50;
 }
 
@@ -15,22 +15,22 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(32px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1.75rem 1.75rem 0 0;
-  padding: 1rem;
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  background: var(--card-bg);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
   z-index: 50;
+  box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.1);
 }
 
-/* Handle Bar (полоска для swipe) */
+/* Handle Bar */
 .handleBar {
-  width: 2.5rem;
-  height: 0.25rem;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 9999px;
-  margin: 0.75rem auto 1rem;
+  width: 36px;
+  height: 4px;
+  background: var(--color-text-muted);
+  opacity: 0.3;
+  border-radius: var(--radius-full);
+  margin: 8px auto 16px;
 }
 
 /* Header */
@@ -38,148 +38,155 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
+  padding: 0 16px 16px;
 }
 
 .header h2 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.95);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text);
   margin: 0;
+  letter-spacing: -0.02em;
 }
 
 .closeButton {
-  padding: 0.5rem;
-  border-radius: 0.75rem;
-  background: transparent;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
   border: none;
-  color: rgb(148, 163, 184);
+  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-base);
 }
 
 .closeButton:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--color-bg-tertiary);
+  color: var(--color-text);
 }
 
 /* Form */
 .form {
-  padding: 0 1rem;
+  padding: 0 16px;
 }
 
 /* Input Field */
 .input {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-  font-size: 1rem;
-  transition: all 0.15s;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-secondary);
+  border: 2px solid transparent;
+  color: var(--color-text);
+  font-size: 16px;
+  transition: all var(--transition-base);
 }
 
 .input::placeholder {
-  color: rgb(71, 85, 105);
+  color: var(--color-text-muted);
 }
 
 .input:focus {
   outline: none;
-  border-color: rgba(16, 185, 129, 0.5);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  border-color: var(--color-accent);
+  background: var(--card-bg);
 }
 
 /* Categories Grid */
 .categoriesGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
-  margin-top: 1rem;
+  gap: 10px;
+  margin-top: 16px;
 }
 
 .categoryButton {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgb(148, 163, 184);
+  gap: 6px;
+  padding: 12px 8px;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-secondary);
+  border: 2px solid transparent;
+  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-base);
 }
 
 .categoryButton:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-bg-tertiary);
 }
 
 /* Category Selected States */
 .categoryButton.selected {
-  border-width: 1px;
+  border-width: 2px;
 }
 
 .categoryButton.sport.selected {
-  background: rgba(249, 115, 22, 0.2);
-  border-color: rgba(249, 115, 22, 0.4);
-  color: rgb(251, 146, 60);
+  background: var(--color-sport-bg);
+  border-color: var(--color-sport);
+  color: var(--color-sport);
 }
 
 .categoryButton.nutrition.selected {
-  background: rgba(20, 184, 166, 0.2);
-  border-color: rgba(20, 184, 166, 0.4);
-  color: rgb(45, 212, 191);
+  background: var(--color-nutrition-bg);
+  border-color: var(--color-nutrition);
+  color: var(--color-nutrition);
 }
 
 .categoryButton.regime.selected {
-  background: rgba(139, 92, 246, 0.2);
-  border-color: rgba(139, 92, 246, 0.4);
-  color: rgb(167, 139, 250);
+  background: var(--color-regime-bg);
+  border-color: var(--color-regime);
+  color: var(--color-regime);
 }
 
 .categoryButton.other.selected {
-  background: rgba(100, 116, 139, 0.2);
-  border-color: rgba(100, 116, 139, 0.4);
-  color: rgb(148, 163, 184);
+  background: var(--color-other-bg);
+  border-color: var(--color-other);
+  color: var(--color-other);
 }
 
 .categoryButton .emoji {
-  font-size: 1.5rem;
+  font-size: 24px;
 }
 
 .categoryButton .label {
-  font-size: 0.75rem;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 /* Submit Button */
 .submitButton {
   width: 100%;
-  margin-top: 1rem;
-  padding: 0.75rem;
-  border-radius: 0.75rem;
-  font-weight: 500;
-  background: rgba(16, 185, 129, 0.2);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  color: rgb(52, 211, 153);
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  font-size: 16px;
+  font-weight: 600;
+  background: var(--color-accent);
+  border: none;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 8px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all var(--transition-base);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
 }
 
 .submitButton:hover {
-  background: rgba(16, 185, 129, 0.3);
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+}
+
+.submitButton:active {
+  transform: scale(0.98);
 }
 
 .submitButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.submitButton:disabled:hover {
-  background: rgba(16, 185, 129, 0.2);
+  transform: none;
+  box-shadow: none;
 }
