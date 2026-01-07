@@ -118,33 +118,43 @@ export function HomePage() {
   // Показываем профиль как отдельный экран
   if (showProfile) {
     return (
-      <div className={`fixed inset-0 bg-white ${isMobile ? 'tg-safe-page' : 'tg-safe-page-desktop'}`}>
-        <div className={styles.appContainer}>
+      <div className={`app-screen ${isMobile ? 'with-safe-area' : 'with-safe-area-desktop'}`}>
+        <div className="app-screen__scroll">
           <ProfileView onBack={() => setShowProfile(false)} habits={habits} />
         </div>
       </div>
     );
   }
 
+  /*
+    СТРУКТУРА LAYOUT:
+
+    <app-screen> — fixed на весь экран + padding-top для safe area
+      <app-screen__scroll> — flex:1, overflow-y:auto — ВСЁ скроллится тут
+        [Header]
+        [WeekNav]
+        [Content]
+        [Padding снизу 120px для BottomNav]
+      </app-screen__scroll>
+    </app-screen>
+    <BottomNav /> — fixed внизу
+  */
+
   return (
     <>
-      {/*
-        КРИТИЧЕСКИЙ ПАТТЕРН (1 в 1 как SELF-deploy-prod):
-        1. fixed inset-0 + tg-safe-page — фиксированный контейнер с Telegram safe area padding
-        2. flex h-full w-full flex-col overflow-hidden — главный flex контейнер
-        3. flex-1 overflow-y-auto — ЕДИНСТВЕННОЕ место где скролл
-      */}
-      <div className={`fixed inset-0 bg-white ${isMobile ? 'tg-safe-page' : 'tg-safe-page-desktop'}`}>
-        {/* Главный flex контейнер — h-full критичен! */}
-        <div className="flex h-full w-full flex-col overflow-hidden">
-          {/* Home Tab — Трекер */}
+      {/* APP SCREEN — фиксированный контейнер с safe area */}
+      <div className={`app-screen ${isMobile ? 'with-safe-area' : 'with-safe-area-desktop'}`}>
+
+        {/* SCROLL CONTAINER — единственное место где скролл */}
+        <div className="app-screen__scroll">
+
+          {/* Home Tab */}
           {activeTab === 'home' && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex h-full flex-col overflow-hidden"
             >
-              {/* Header — flex-shrink-0 не даёт сжиматься */}
+              {/* Header */}
               <div className={styles.header}>
                 <button
                   onClick={() => setShowProfile(true)}
@@ -188,68 +198,68 @@ export function HomePage() {
                 </button>
               </div>
 
-              {/* SCROLLABLE AREA — flex-1 overflow-y-auto pb-32 для запаса под BottomNav */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden pb-32 scroll-touch">
-                <div className={styles.contentWrapper}>
-                  {isLoading ? (
-                    <div className={styles.skeletonList}>
-                      <SkeletonCard />
-                      <SkeletonCard />
-                      <SkeletonCard />
+              {/* Content */}
+              <div className={styles.contentWrapper}>
+                {isLoading ? (
+                  <div className={styles.skeletonList}>
+                    <SkeletonCard />
+                    <SkeletonCard />
+                    <SkeletonCard />
+                  </div>
+                ) : habits.length === 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={styles.emptyState}
+                  >
+                    <div className={styles.emptyStateIcon}>
+                      <Plus size={32} />
                     </div>
-                  ) : habits.length === 0 ? (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={styles.emptyState}
+                    <h3>Нет привычек</h3>
+                    <p>Добавьте первую привычку для отслеживания</p>
+                    <button
+                      onClick={() => setIsAddModalOpen(true)}
+                      className={styles.emptyStateButton}
                     >
-                      <div className={styles.emptyStateIcon}>
-                        <Plus size={32} />
-                      </div>
-                      <h3>Нет привычек</h3>
-                      <p>Добавьте первую привычку для отслеживания</p>
-                      <button
-                        onClick={() => setIsAddModalOpen(true)}
-                        className={styles.emptyStateButton}
-                      >
-                        Добавить привычку
-                      </button>
-                    </motion.div>
-                  ) : (
-                    <HabitList
-                      habits={habits}
-                      onToggleDate={handleToggleDate}
-                      onUpdate={handleUpdateHabit}
-                      onDelete={handleDeleteHabit}
-                      weekStart={selectedWeekStart}
-                    />
-                  )}
-                </div>
+                      Добавить привычку
+                    </button>
+                  </motion.div>
+                ) : (
+                  <HabitList
+                    habits={habits}
+                    onToggleDate={handleToggleDate}
+                    onUpdate={handleUpdateHabit}
+                    onDelete={handleDeleteHabit}
+                    weekStart={selectedWeekStart}
+                  />
+                )}
               </div>
+
+              {/* Запас хода снизу для BottomNav */}
+              <div style={{ height: '120px' }} />
             </motion.div>
           )}
 
-          {/* Analytics Tab — Объединённая аналитика */}
+          {/* Analytics Tab */}
           {activeTab === 'analytics' && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex h-full flex-col overflow-hidden"
             >
-              {/* SCROLLABLE AREA для аналитики — pb-32 для запаса под BottomNav */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden pb-32 scroll-touch">
-                <AnalyticsView
-                  habits={habits}
-                  totalPoints={totalPoints}
-                  user={user}
-                />
-              </div>
+              <AnalyticsView
+                habits={habits}
+                totalPoints={totalPoints}
+                user={user}
+              />
+              {/* Запас хода снизу для BottomNav */}
+              <div style={{ height: '120px' }} />
             </motion.div>
           )}
+
         </div>
       </div>
 
-      {/* Bottom Navigation — position: fixed в CSS */}
+      {/* Bottom Navigation — position: fixed */}
       <BottomNav
         activeTab={activeTab}
         onChange={setActiveTab}
