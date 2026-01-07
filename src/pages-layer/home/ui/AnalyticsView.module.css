@@ -1,10 +1,23 @@
-/* AnalyticsView — объединённый раздел аналитики */
+/* AnalyticsView — объединённый раздел аналитики с детальным просмотром */
 
 .container {
   padding: 0 16px 100px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-/* Header */
+/* Desktop — увеличенный контейнер */
+@media (min-width: 768px) {
+  .container {
+    max-width: 800px;
+    padding: 0 24px 120px;
+  }
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+
 .header {
   display: flex;
   align-items: center;
@@ -21,45 +34,28 @@
   letter-spacing: -0.02em;
 }
 
-/* Toggle между режимами */
-.viewToggle {
-  display: flex;
-  gap: 4px;
-  background: var(--color-bg-secondary);
-  padding: 4px;
-  border-radius: var(--radius-lg);
+@media (min-width: 768px) {
+  .header h2 {
+    font-size: 32px;
+  }
 }
 
-.toggleButton {
-  width: 40px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  color: var(--color-text-muted);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition-base);
-}
+/* ========================================
+   STATS GRID — 2x2
+   ======================================== */
 
-.toggleButton:hover {
-  color: var(--color-text-secondary);
-}
-
-.toggleButton.active {
-  background: white;
-  color: var(--color-accent);
-  box-shadow: var(--card-shadow);
-}
-
-/* Stats Grid — 2x2 */
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin-bottom: 20px;
+}
+
+@media (min-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
 }
 
 .statCard {
@@ -71,11 +67,12 @@
   align-items: center;
   gap: 8px;
   box-shadow: var(--card-shadow);
-  transition: box-shadow var(--transition-base);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
 }
 
 .statCard:hover {
   box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
 }
 
 .statIcon {
@@ -121,7 +118,10 @@
   text-align: center;
 }
 
-/* Section */
+/* ========================================
+   SECTION
+   ======================================== */
+
 .section {
   margin-bottom: 20px;
 }
@@ -133,6 +133,12 @@
   box-shadow: var(--card-shadow);
 }
 
+@media (min-width: 768px) {
+  .sectionCard {
+    padding: 24px;
+  }
+}
+
 .sectionTitle {
   font-size: 18px;
   font-weight: 600;
@@ -140,7 +146,89 @@
   margin: 0 0 16px;
 }
 
-/* Category Stats */
+/* ========================================
+   HABITS LIST (клик для детального просмотра)
+   ======================================== */
+
+.habitsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.habitItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background var(--transition-base), transform var(--transition-base);
+}
+
+.habitItem:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.habitItem:active {
+  transform: scale(0.98);
+}
+
+.habitLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.habitColorBar {
+  width: 4px;
+  height: 40px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.habitInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.habitName {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.habitMeta {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.habitRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.habitChevron {
+  color: var(--color-text-muted);
+}
+
+/* ========================================
+   CATEGORY STATS
+   ======================================== */
+
 .categoryList {
   display: flex;
   flex-direction: column;
@@ -197,7 +285,10 @@
   color: var(--color-text-muted);
 }
 
-/* Profile Card */
+/* ========================================
+   PROFILE CARD
+   ======================================== */
+
 .profileCard {
   background: var(--card-bg);
   border-radius: var(--radius-xl);
@@ -274,7 +365,225 @@
 }
 
 /* ========================================
-   РЕЖИМ КАЛЕНДАРЯ
+   DETAIL VIEW — Шапка с назад
+   ======================================== */
+
+.detailHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  margin-bottom: 8px;
+}
+
+.backButton {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  flex-shrink: 0;
+}
+
+.backButton:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text);
+}
+
+.detailTitleBlock {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.habitColorDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.detailTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 768px) {
+  .detailTitle {
+    font-size: 26px;
+  }
+}
+
+/* ========================================
+   HABIT STATS GRID — 2x2
+   ======================================== */
+
+.habitStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 768px) {
+  .habitStatsGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+}
+
+.habitStatCard {
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--card-shadow);
+}
+
+.habitStatIcon {
+  margin-bottom: 4px;
+}
+
+.habitStatValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+.habitStatLabel {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+/* ========================================
+   WEEKLY CHART (Bar Chart)
+   ======================================== */
+
+.weeklyChart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 120px;
+  gap: 4px;
+  padding: 0 4px;
+}
+
+@media (min-width: 768px) {
+  .weeklyChart {
+    height: 150px;
+    gap: 8px;
+  }
+}
+
+.weeklyBar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.barContainer {
+  width: 100%;
+  height: 100px;
+  background: var(--color-bg-secondary);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .barContainer {
+    height: 130px;
+    border-radius: 6px;
+  }
+}
+
+.bar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  min-height: 2px;
+}
+
+.barLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.weeklyLabels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 0 4px;
+}
+
+.weekLabel {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+/* ========================================
+   PROGRESS BARS
+   ======================================== */
+
+.progressItem {
+  margin-bottom: 16px;
+}
+
+.progressItem:last-child {
+  margin-bottom: 0;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.progressValue {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.progressBar {
+  height: 8px;
+  background: var(--color-bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* ========================================
+   CALENDAR (Detail View)
    ======================================== */
 
 .calendarNavigation {
@@ -309,14 +618,6 @@
   text-transform: capitalize;
 }
 
-.calendarCard {
-  background: var(--card-bg);
-  border-radius: var(--radius-xl);
-  padding: 16px;
-  box-shadow: var(--card-shadow);
-  margin-bottom: 16px;
-}
-
 .calDaysHeader {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -339,79 +640,56 @@
 }
 
 .calDayCell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 44px;
-}
-
-.calDayButton {
-  width: 32px;
-  height: 32px;
+  aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   font-size: 13px;
   font-weight: 500;
   color: var(--color-text);
+  background: var(--color-bg-secondary);
   transition: all var(--transition-base);
 }
 
-.calDayButton.calToday {
-  background: var(--color-accent);
+.calDayCompleted {
   color: white;
   font-weight: 600;
 }
 
-.calDayButton.calHasCompletions:not(.calToday) {
-  background: var(--color-success-bg);
+.calDayToday {
+  box-shadow: inset 0 0 0 2px var(--color-accent);
 }
 
-.calDotsContainer {
+/* ========================================
+   INFO LIST
+   ======================================== */
+
+.infoList {
   display: flex;
-  gap: 2px;
-  margin-top: 2px;
-  flex-wrap: wrap;
-  justify-content: center;
-  max-width: 32px;
-}
-
-.calHabitDot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-}
-
-.calMoreDots {
-  font-size: 8px;
-  color: var(--color-text-muted);
-}
-
-/* Легенда */
-.calLegend {
-  display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 12px;
-  background: var(--card-bg);
-  border-radius: var(--radius-xl);
-  padding: 16px;
-  box-shadow: var(--card-shadow);
 }
 
-.calLegendItem {
+.infoItem {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 6px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-bg-secondary);
 }
 
-.calLegendDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+.infoItem:last-child {
+  border-bottom: none;
 }
 
-.calLegendLabel {
-  font-size: 13px;
+.infoLabel {
+  font-size: 14px;
   color: var(--color-text-secondary);
+}
+
+.infoValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
 }
