@@ -34,6 +34,7 @@ import {
 } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Habit } from '@/entities/habit';
+import { DynamicIcon } from '@/shared/ui';
 import { CATEGORIES, getCategory } from '@/shared/config';
 import { cn } from '@/shared/lib';
 import styles from './AnalyticsView.module.css';
@@ -237,11 +238,15 @@ export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps)
             <ArrowLeft size={20} />
           </button>
           <div className={styles.detailTitleBlock}>
-            <span
-              className={styles.habitColorDot}
-              style={{ backgroundColor: category.color }}
-            />
-            <h2 className={styles.detailTitle}>{selectedHabit.title}</h2>
+            <div
+              className={styles.habitDetailIcon}
+              style={{ backgroundColor: `${selectedHabit.color}20`, color: selectedHabit.color }}
+            >
+              <DynamicIcon name={selectedHabit.icon} size={20} />
+            </div>
+            <h2 className={styles.detailTitle} style={{ color: selectedHabit.color }}>
+              {selectedHabit.title}
+            </h2>
           </div>
         </div>
 
@@ -282,7 +287,7 @@ export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps)
                       initial={{ height: 0 }}
                       animate={{ height: `${(week.completed / 7) * 100}%` }}
                       transition={{ delay: i * 0.03, duration: 0.3 }}
-                      style={{ backgroundColor: category.color }}
+                      style={{ backgroundColor: selectedHabit.color }}
                     />
                   </div>
                   <span className={styles.barLabel}>{week.completed}</span>
@@ -312,7 +317,7 @@ export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps)
                   className={styles.progressFill}
                   initial={{ width: 0 }}
                   animate={{ width: `${(habitDetailStats.completedLast7 / 7) * 100}%` }}
-                  style={{ backgroundColor: category.color }}
+                  style={{ backgroundColor: selectedHabit.color }}
                 />
               </div>
             </div>
@@ -327,7 +332,7 @@ export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps)
                   className={styles.progressFill}
                   initial={{ width: 0 }}
                   animate={{ width: `${(habitDetailStats.completedLast30 / 30) * 100}%` }}
-                  style={{ backgroundColor: category.color }}
+                  style={{ backgroundColor: selectedHabit.color }}
                 />
               </div>
             </div>
