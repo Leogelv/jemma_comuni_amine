@@ -66,7 +66,18 @@ body {
   bottom: 0;
   display: flex;
   flex-direction: column;
+  background: #1a1a2e; /* Тёмный фон страницы */
+}
+
+/* Скроллируемая область — белая со скруглением сверху */
+.app-screen__scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   background: white;
+  border-radius: 24px 24px 0 0; /* Скругление сверху */
 }
 
 /* Верхний отступ для Telegram safe area */
@@ -76,15 +87,6 @@ body {
 
 .app-screen.with-safe-area-desktop {
   padding-top: max(55px, calc(var(--tg-total-safe-area-top, 0px) + 40px));
-}
-
-/* Скроллируемая область внутри app-screen */
-.app-screen__scroll {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
 }
 
 /* ========================================
