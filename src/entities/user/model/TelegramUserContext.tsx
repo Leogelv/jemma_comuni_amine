@@ -23,6 +23,13 @@ interface TgUser {
   photo_url?: string;
   total_points?: number;
   current_streak?: number;
+  // Поля профиля
+  age?: number;
+  gender?: 'male' | 'female' | 'other';
+  timezone?: string;
+  // Настройки уведомлений
+  notifications_enabled?: boolean;
+  default_reminder_time?: string;
 }
 
 interface TgWebAppData {

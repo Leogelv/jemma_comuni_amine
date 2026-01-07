@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, isSameWeek } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Plus, ChevronLeft, ChevronRight, User } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { useTelegramUser } from '@/entities/user';
 import { useHabits, useCreateHabit, useToggleHabitCompletion, useUpdateHabitTitle, useDeleteHabit } from '@/entities/habit';
@@ -14,6 +14,7 @@ import { BottomNav, TabType } from '@/widgets/bottom-nav';
 import { AddHabitModal } from '@/features/add-habit';
 import { SkeletonCard } from '@/shared/ui';
 import { AnalyticsView } from './AnalyticsView';
+import { ProfileView } from './ProfileView';
 import { useViewport } from '@/app/providers/TelegramContext';
 import styles from './HomePage.module.css';
 
@@ -35,6 +36,7 @@ import styles from './HomePage.module.css';
 export function HomePage() {
   const [activeTab, setActiveTab] = useState<TabType>('home');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [selectedWeekStart, setSelectedWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
@@ -111,31 +113,55 @@ export function HomePage() {
 
   const isLoading = userLoading || habitsLoading;
   const totalPoints = user?.total_points || 0;
+  const photoUrl = user?.photo_url;
+
+  // Показываем профиль как отдельный экран
+  if (showProfile) {
+    return (
+      <div className={`fixed inset-0 bg-white ${isMobile ? 'tg-safe-page' : 'tg-safe-page-desktop'}`}>
+        <div className={styles.appContainer}>
+          <ProfileView onBack={() => setShowProfile(false)} habits={habits} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
       {/*
-        КРИТИЧЕСКИЙ ПАТТЕРН: fixed + safe-area + internal scroll
-        1. fixed inset-0 — контейнер фиксирован на весь экран
-        2. tg-safe-page — padding-top/bottom из Telegram CSS переменных
-        3. Скролл ТОЛЬКО внутри scrollArea (flex-1 overflow-y-auto)
+        КРИТИЧЕСКИЙ ПАТТЕРН (1 в 1 как SELF-deploy-prod):
+        1. fixed inset-0 + tg-safe-page — фиксированный контейнер с Telegram safe area padding
+        2. flex h-full w-full flex-col overflow-hidden — главный flex контейнер
+        3. flex-1 overflow-y-auto — ЕДИНСТВЕННОЕ место где скролл
       */}
       <div className={`fixed inset-0 bg-white ${isMobile ? 'tg-safe-page' : 'tg-safe-page-desktop'}`}>
-        {/* Flex контейнер на всю высоту */}
-        <div className={styles.appContainer}>
+        {/* Главный flex контейнер — h-full критичен! */}
+        <div className="flex h-full w-full flex-col overflow-hidden">
           {/* Home Tab — Трекер */}
           {activeTab === 'home' && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className={styles.screenWrapper}
+              className="flex h-full flex-col overflow-hidden"
             >
-              {/* Header — фиксированный сверху */}
+              {/* Header — flex-shrink-0 не даёт сжиматься */}
               <div className={styles.header}>
-                <h1 className={styles.pageTitle}>Привычки</h1>
+                <button
+                  onClick={() => setShowProfile(true)}
+                  className={styles.avatarButton}
+                  aria-label="Открыть профиль"
+                >
+                  {photoUrl ? (
+                    <img src={photoUrl} alt="Avatar" className={styles.avatarImage} />
+                  ) : (
+                    <div className={styles.avatarPlaceholder}>
+                      <User size={20} />
+                    </div>
+                  )}
+                </button>
               </div>
 
-              {/* Week Navigation — под header */}
+              {/* Week Navigation */}
               <div className={styles.weekNav}>
                 <button
                   onClick={goToPreviousWeek}
@@ -162,9 +188,9 @@ export function HomePage() {
                 </button>
               </div>
 
-              {/* Scrollable Content Area — ТОЛЬКО ЗДЕСЬ скролл */}
-              <div className={styles.scrollArea}>
-                <div className={styles.habitsSection}>
+              {/* SCROLLABLE AREA — flex-1 overflow-y-auto pb-24 (как в SELF) */}
+              <div className="flex-1 overflow-y-auto overflow-x-hidden pb-24 scroll-touch">
+                <div className={styles.contentWrapper}>
                   {isLoading ? (
                     <div className={styles.skeletonList}>
                       <SkeletonCard />
@@ -208,10 +234,10 @@ export function HomePage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className={styles.screenWrapper}
+              className="flex h-full flex-col overflow-hidden"
             >
-              {/* Scrollable Content Area для аналитики */}
-              <div className={styles.scrollArea}>
+              {/* SCROLLABLE AREA для аналитики */}
+              <div className="flex-1 overflow-y-auto overflow-x-hidden pb-24 scroll-touch">
                 <AnalyticsView
                   habits={habits}
                   totalPoints={totalPoints}
@@ -220,17 +246,17 @@ export function HomePage() {
               </div>
             </motion.div>
           )}
-
-          {/* Bottom Navigation — фиксирован снизу */}
-          <BottomNav
-            activeTab={activeTab}
-            onChange={setActiveTab}
-            onAddClick={() => setIsAddModalOpen(true)}
-          />
         </div>
       </div>
 
-      {/* Add Habit Modal — вне основного контейнера */}
+      {/* Bottom Navigation — position: fixed в CSS */}
+      <BottomNav
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        onAddClick={() => setIsAddModalOpen(true)}
+      />
+
+      {/* Add Habit Modal */}
       <AddHabitModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}

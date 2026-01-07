@@ -4,8 +4,9 @@ export type {
   Tables,
   TablesInsert,
   TablesUpdate,
-  TgUser,
-  Habit,
-  HabitCompletion,
-  UserAchievement,
+  DbTgUser,
+  DbHabit,
+  DbHabitCompletion,
+  DbHabitPreset,
+  DbUserAchievement,
 } from './supabase/database.types';

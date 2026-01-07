@@ -5,10 +5,11 @@ export type {
   Tables,
   TablesInsert,
   TablesUpdate,
-  TgUser,
-  Habit,
-  HabitCompletion,
-  UserAchievement,
+  DbTgUser,
+  DbHabit,
+  DbHabitCompletion,
+  DbHabitPreset,
+  DbUserAchievement,
 } from './database.types';
 
 // Экспорт синглтона supabase для удобства

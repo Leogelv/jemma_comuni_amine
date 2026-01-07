@@ -1,61 +1,100 @@
 /* HomePage.module.css — Apple Beautiful Light Design */
-/* Layout паттерн: fixed container + internal scroll (как в SELF-deploy-prod) */
+/* Layout паттерн: fixed container + internal scroll (1 в 1 как SELF-deploy-prod) */
 
-/* ===== APP CONTAINER =====
-   Главный flex-контейнер на всю высоту.
-   Располагается внутри fixed inset-0 tg-safe-page
+/*
+  КРИТИЧЕСКАЯ СТРУКТУРА:
+  <div fixed inset-0 tg-safe-page>
+    <div flex h-full w-full flex-col overflow-hidden>
+      <motion.div flex h-full flex-col overflow-hidden>
+        <header flex-shrink-0 />
+        <weekNav flex-shrink-0 />
+        <div flex-1 overflow-y-auto pb-24>  ← СКРОЛЛ ТОЛЬКО ЗДЕСЬ
+          <contentWrapper />
+        </div>
+      </motion.div>
+    </div>
+  </div>
+  <BottomNav position:fixed />
 */
+
+/* Контейнер для профиля (оставляем для обратной совместимости) */
 .appContainer {
   width: 100%;
-  max-width: 600px;
   height: 100%;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* Desktop — увеличенный контейнер */
+/* Обёртка контента внутри scrollArea — ограничение ширины */
+.contentWrapper {
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 @media (min-width: 768px) {
-  .appContainer {
-    max-width: 800px;
+  .contentWrapper {
+    max-width: 700px;
   }
 }
 
-/* ===== SCREEN WRAPPER =====
-   Обёртка для таба — занимает всё пространство между header и nav
-*/
-.screenWrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-height: 0; /* Критично для работы flex + overflow */
-}
-
-/* ===== SCROLL AREA =====
-   ЕДИНСТВЕННОЕ место где происходит скролл контента.
-   flex-1 растягивает на доступную высоту.
-   overflow-y-auto — вертикальный скролл.
-   pb-24 (96px) — отступ снизу для нижней навигации.
-*/
-.scrollArea {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-bottom: 96px;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-}
-
-/* Header — фиксированный сверху (flex-shrink-0 не даёт сжиматься) */
+/* Header — flex-shrink-0 не даёт сжиматься при скролле */
 .header {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
+  justify-content: center;
+  padding: 12px 24px;
   background: white;
+}
+
+/* Кнопка-аватар */
+.avatarButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.avatarButton:hover {
+  transform: scale(1.05);
+}
+
+.avatarButton:active {
+  transform: scale(0.95);
+}
+
+.avatarImage {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatarPlaceholder {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #818CF8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
 }
 
 .pageTitle {
@@ -138,14 +177,6 @@
   border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-}
-
-/* Habits List секция */
-.habitsSection {
-  padding: 16px 16px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }
 
 .skeletonList {

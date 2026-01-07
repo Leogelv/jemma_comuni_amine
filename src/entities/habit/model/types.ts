@@ -11,6 +11,9 @@ export interface Habit {
   completed_dates: string[]; // ISO Date strings YYYY-MM-DD
   total_completions: number;
   created_at: string;
+  // Настройки напоминаний
+  reminder_enabled: boolean;  // Включены ли напоминания для этой привычки
+  reminder_time: string | null; // Время напоминания (HH:MM), если null — используется default юзера
 }
 
 export interface HabitPreset {
