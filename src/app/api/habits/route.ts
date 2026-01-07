@@ -227,12 +227,30 @@ function getPointsForCategory(category: string): number {
   return points[category] || 5;
 }
 
+/**
+ * Расчёт streak (серии последовательных дней)
+ *
+ * ЛОГИКА:
+ * 1. Streak считает ВСЕ последовательные дни, начиная с сегодня/вчера
+ * 2. Если последнее выполнение было раньше чем вчера — streak = 0
+ * 3. Не привязан к неделям — считает через все предыдущие недели/месяцы
+ *
+ * Пример: если выполнено 1, 2, 3, 4, 5, 6, 7 января и сегодня 7 января
+ *         streak = 7 (а не только дни текущей недели)
+ */
 function calculateStreak(dates: string[]): number {
   if (dates.length === 0) return 0;
 
-  const sortedDates = dates
-    .map(d => new Date(d))
-    .sort((a, b) => b.getTime() - a.getTime());
+  // Нормализуем даты и убираем дубликаты
+  const uniqueDates = [...new Set(dates)];
+
+  const sortedDates = uniqueDates
+    .map(d => {
+      const date = new Date(d);
+      date.setHours(0, 0, 0, 0);
+      return date;
+    })
+    .sort((a, b) => b.getTime() - a.getTime()); // От новых к старым
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -240,30 +258,34 @@ function calculateStreak(dates: string[]): number {
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  // Проверяем, есть ли выполнение сегодня или вчера
+  // Самая последняя дата выполнения
   const latestDate = sortedDates[0];
-  latestDate.setHours(0, 0, 0, 0);
 
-  if (latestDate < yesterday) {
-    return 0; // Streak прерван
+  // Проверяем, актуален ли streak (выполнение сегодня или вчера)
+  if (latestDate.getTime() < yesterday.getTime()) {
+    return 0; // Streak прерван — последнее выполнение было раньше вчера
   }
 
+  // Считаем последовательные дни назад
   let streak = 1;
   let currentDate = latestDate;
 
   for (let i = 1; i < sortedDates.length; i++) {
-    const prevDate = new Date(currentDate);
-    prevDate.setDate(prevDate.getDate() - 1);
+    // Ожидаемая предыдущая дата в последовательности
+    const expectedPrevDate = new Date(currentDate);
+    expectedPrevDate.setDate(expectedPrevDate.getDate() - 1);
 
     const checkDate = sortedDates[i];
-    checkDate.setHours(0, 0, 0, 0);
 
-    if (checkDate.getTime() === prevDate.getTime()) {
+    // Если дата точно на день раньше — продолжаем streak
+    if (checkDate.getTime() === expectedPrevDate.getTime()) {
       streak++;
       currentDate = checkDate;
-    } else if (checkDate.getTime() < prevDate.getTime()) {
+    } else if (checkDate.getTime() < expectedPrevDate.getTime()) {
+      // Пропуск в последовательности — прерываем счёт
       break;
     }
+    // Если checkDate === currentDate — дубликат, пропускаем (уже убрали выше)
   }
 
   return streak;

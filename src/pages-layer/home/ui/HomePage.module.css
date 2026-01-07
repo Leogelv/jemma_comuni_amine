@@ -1,31 +1,42 @@
 /* HomePage.module.css — Apple Beautiful Light Design */
 
-/* Основной контейнер страницы */
+/* Основной контейнер страницы с safe area */
 .page {
   min-height: 100vh;
+  min-height: 100dvh;
   background: white;
+  overflow: hidden;
 }
 
-/* Контейнер — fullscreen */
+/* Контейнер — fullscreen flex */
 .container {
   width: 100%;
+  height: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-/* Контент таба */
+/* Контент таба — скроллируется */
 .tabContent {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding-bottom: 100px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
-/* Header — Habitflow-style */
+/* Header — sticky сверху */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 48px 24px 24px;
-  padding-top: calc(48px + env(safe-area-inset-top));
-  background: rgba(255, 255, 255, 0.8);
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   position: sticky;
@@ -34,30 +45,11 @@
 }
 
 .pageTitle {
-  font-size: 30px;
-  font-weight: 300;
-  color: #1F2937;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text);
   letter-spacing: -0.02em;
   margin: 0;
-}
-
-.headerActions {
-  display: flex;
-  gap: 16px;
-}
-
-.headerButton {
-  padding: 0;
-  background: none;
-  border: none;
-  color: #9CA3AF;
-  cursor: pointer;
-  transition: color 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.headerButton:hover {
-  color: #4B5563;
 }
 
 /* Week Navigation — под header */
@@ -210,40 +202,4 @@
   transform: scale(0.97);
 }
 
-/* Floating Action Button */
-.fab {
-  position: fixed;
-  bottom: 100px;
-  right: 20px;
-  width: 56px;
-  height: 56px;
-  background: var(--color-accent);
-  color: white;
-  border-radius: var(--radius-full);
-  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition-base);
-  z-index: 40;
-}
-
-.fab:hover {
-  background: var(--color-accent-hover);
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(0, 122, 255, 0.45);
-}
-
-.fab:active {
-  transform: scale(0.95);
-}
-
-/* FAB позиционирование на десктопе */
-@media (min-width: 768px) {
-  .fab {
-    right: 40px;
-    bottom: 120px;
-  }
-}
+/* FAB удалён — кнопка добавления теперь в нижнем меню */

@@ -1,4 +1,4 @@
-/* BottomNav — Apple-style Tab Bar */
+/* BottomNav — Apple-style Tab Bar с центральной кнопкой добавления */
 
 .nav {
   position: fixed;
@@ -6,22 +6,25 @@
   left: 0;
   right: 0;
   z-index: 50;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--card-border);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Учитываем safe area снизу для iPhone с notch */
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px));
 }
 
 .container {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  height: 56px;
+  height: 60px;
   max-width: 480px;
   margin: 0 auto;
+  padding: 0 8px;
 }
 
+/* Обычная кнопка навигации */
 .button {
   position: relative;
   display: flex;
@@ -29,13 +32,14 @@
   align-items: center;
   justify-content: center;
   gap: 2px;
-  padding: 8px 20px;
+  padding: 8px 24px;
   transition: all var(--transition-base);
   color: var(--color-text-muted);
   border: none;
   background: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .button:hover {
@@ -58,7 +62,7 @@
 }
 
 .label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   transition: all var(--transition-base);
 }
@@ -66,4 +70,58 @@
 .label.active {
   font-weight: 600;
   color: var(--color-accent);
+}
+
+/* Центральная кнопка — Добавить */
+.addButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  /* Приподнимаем кнопку над навбаром */
+  margin-top: -20px;
+}
+
+.addButtonInner {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent);
+  color: white;
+  border-radius: var(--radius-full);
+  box-shadow:
+    0 4px 12px rgba(0, 122, 255, 0.35),
+    0 2px 4px rgba(0, 122, 255, 0.2);
+  transition: all var(--transition-base);
+}
+
+.addButton:hover .addButtonInner {
+  background: var(--color-accent-hover);
+  transform: scale(1.05);
+  box-shadow:
+    0 6px 16px rgba(0, 122, 255, 0.4),
+    0 3px 6px rgba(0, 122, 255, 0.25);
+}
+
+.addButton:active .addButtonInner {
+  transform: scale(0.95);
+}
+
+/* На десктопе увеличиваем отступы */
+@media (min-width: 768px) {
+  .container {
+    padding: 0 20px;
+  }
+
+  .button {
+    padding: 8px 32px;
+  }
 }

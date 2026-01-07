@@ -58,12 +58,38 @@ p {
    TELEGRAM MINI APP: Safe Areas
    ======================================== */
 
+/* Legacy — для обратной совместимости */
 .with-safe-area-top {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
 .with-safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ===== Telegram Safe Area System ===== */
+/* Используй эти классы для всех страниц и модалок */
+
+/* Основной контейнер страницы с safe area отступами */
+.tg-safe-page {
+  padding-top: max(12px, var(--tg-total-safe-area-top, 0px));
+  padding-bottom: max(2px, var(--tg-total-safe-area-bottom, 0px));
+}
+
+/* Desktop версия с увеличенным верхним отступом */
+.tg-safe-page-desktop {
+  padding-top: max(55px, calc(var(--tg-total-safe-area-top, 0px) + 40px));
+  padding-bottom: max(2px, var(--tg-total-safe-area-bottom, 0px));
+}
+
+/* Только верхний отступ */
+.tg-safe-top {
+  padding-top: max(12px, var(--tg-total-safe-area-top, 0px));
+}
+
+/* Только нижний отступ */
+.tg-safe-bottom {
+  padding-bottom: max(2px, var(--tg-total-safe-area-bottom, 0px));
 }
 
 /* ========================================
@@ -82,7 +108,16 @@ p {
 /* Touch-friendly scrolling для iOS */
 .scroll-touch {
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
   overscroll-behavior: contain;
+}
+
+/* touch-action только для реальных тач-устройств без hover (мобильные)
+   Условие (hover: none) исключает Desktop Telegram где pointer: coarse может срабатывать неправильно */
+@media (hover: none) and (pointer: coarse) {
+  .scroll-touch {
+    touch-action: pan-y pinch-zoom;
+  }
 }
 
 /* Контейнер с ограниченной шириной */

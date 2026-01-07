@@ -1,46 +1,66 @@
 'use client';
 
 import React from 'react';
-import { Home, BarChart3, Calendar, Settings } from 'lucide-react';
+import { Home, Plus, BarChart3 } from 'lucide-react';
 import styles from './BottomNav.module.css';
 
-// BottomNav — фиксированная навигация с glassmorphism
+/**
+ * BottomNav — нижняя навигация с тремя элементами
+ *
+ * Структура:
+ * - home: Трекер (главная страница с привычками)
+ * - add: Добавить новую привычку (центральная кнопка)
+ * - analytics: Аналитика (объединённый раздел статистики)
+ */
 
-export type TabType = 'home' | 'stats' | 'history' | 'settings';
+export type TabType = 'home' | 'analytics';
 
 interface BottomNavProps {
   activeTab: TabType;
   onChange: (tab: TabType) => void;
+  onAddClick: () => void;
 }
 
-const tabs: { id: TabType; icon: React.ElementType; label: string }[] = [
-  { id: 'home', icon: Home, label: 'Главная' },
-  { id: 'stats', icon: BarChart3, label: 'Прогресс' },
-  { id: 'history', icon: Calendar, label: 'История' },
-  { id: 'settings', icon: Settings, label: 'Настройки' },
-];
-
-export function BottomNav({ activeTab, onChange }: BottomNavProps) {
+export function BottomNav({ activeTab, onChange, onAddClick }: BottomNavProps) {
   return (
     <nav className={styles.nav}>
       <div className={styles.container}>
-        {tabs.map(({ id, icon: Icon, label }) => {
-          const isActive = activeTab === id;
-          return (
-            <button
-              key={id}
-              onClick={() => onChange(id)}
-              className={`${styles.button} ${isActive ? styles.active : ''}`}
-            >
-              <div className={`${styles.iconWrapper} ${isActive ? styles.active : ''}`}>
-                <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
-              </div>
-              <span className={`${styles.label} ${isActive ? styles.active : ''}`}>
-                {label}
-              </span>
-            </button>
-          );
-        })}
+        {/* Трекер */}
+        <button
+          onClick={() => onChange('home')}
+          className={`${styles.button} ${activeTab === 'home' ? styles.active : ''}`}
+        >
+          <div className={`${styles.iconWrapper} ${activeTab === 'home' ? styles.active : ''}`}>
+            <Home size={22} strokeWidth={activeTab === 'home' ? 2.5 : 1.5} />
+          </div>
+          <span className={`${styles.label} ${activeTab === 'home' ? styles.active : ''}`}>
+            Трекер
+          </span>
+        </button>
+
+        {/* Центральная кнопка — Добавить */}
+        <button
+          onClick={onAddClick}
+          className={styles.addButton}
+          aria-label="Добавить привычку"
+        >
+          <div className={styles.addButtonInner}>
+            <Plus size={26} strokeWidth={2.5} />
+          </div>
+        </button>
+
+        {/* Аналитика */}
+        <button
+          onClick={() => onChange('analytics')}
+          className={`${styles.button} ${activeTab === 'analytics' ? styles.active : ''}`}
+        >
+          <div className={`${styles.iconWrapper} ${activeTab === 'analytics' ? styles.active : ''}`}>
+            <BarChart3 size={22} strokeWidth={activeTab === 'analytics' ? 2.5 : 1.5} />
+          </div>
+          <span className={`${styles.label} ${activeTab === 'analytics' ? styles.active : ''}`}>
+            Аналитика
+          </span>
+        </button>
       </div>
     </nav>
   );
