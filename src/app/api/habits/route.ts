@@ -154,7 +154,7 @@ export async function PATCH(request: Request) {
   }
 }
 
-// PUT - Обновить название привычки
+// PUT - Обновить привычку (title, icon, color)
 export async function PUT(request: Request) {
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase is not configured' }, { status: 500 });
@@ -162,15 +162,25 @@ export async function PUT(request: Request) {
 
   try {
     const payload = await request.json();
-    const { habit_id, title } = payload;
+    const { habit_id, title, icon, color } = payload;
 
-    if (!habit_id || !title?.trim()) {
-      return NextResponse.json({ error: 'habit_id and title are required' }, { status: 400 });
+    if (!habit_id) {
+      return NextResponse.json({ error: 'habit_id is required' }, { status: 400 });
+    }
+
+    // Собираем только переданные поля для обновления
+    const updateData: Record<string, string> = {};
+    if (title?.trim()) updateData.title = title.trim();
+    if (icon) updateData.icon = icon;
+    if (color) updateData.color = color;
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({ error: 'At least one field (title, icon, color) is required' }, { status: 400 });
     }
 
     const { data, error } = await supabase
       .from('habits')
-      .update({ title: title.trim() })
+      .update(updateData)
       .eq('id', habit_id)
       .select();
 

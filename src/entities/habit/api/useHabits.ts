@@ -306,18 +306,31 @@ export function useToggleHabitCompletion() {
 }
 
 // ============================================
-// useUpdateHabitTitle — обновление названия привычки
+// useUpdateHabit — обновление привычки (title, icon, color)
 // ============================================
 
-export function useUpdateHabitTitle() {
+interface UpdateHabitData {
+  habit_id: string;
+  telegram_id: number;
+  title?: string;
+  icon?: string;
+  color?: string;
+}
+
+export function useUpdateHabit() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { habit_id: string; title: string; telegram_id: number }) => {
+    mutationFn: async (data: UpdateHabitData) => {
       const response = await fetch('/api/habits', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ habit_id: data.habit_id, title: data.title }),
+        body: JSON.stringify({
+          habit_id: data.habit_id,
+          title: data.title,
+          icon: data.icon,
+          color: data.color,
+        }),
       });
 
       if (!response.ok) {
@@ -332,9 +345,17 @@ export function useUpdateHabitTitle() {
 
       const previousHabits = queryClient.getQueryData<Habit[]>(['habits', variables.telegram_id]);
 
-      // Обновляем название в UI сразу
+      // Обновляем поля в UI сразу
       queryClient.setQueryData<Habit[]>(['habits', variables.telegram_id], (old = []) =>
-        old.map((h) => (h.id === variables.habit_id ? { ...h, title: variables.title } : h))
+        old.map((h) => {
+          if (h.id !== variables.habit_id) return h;
+          return {
+            ...h,
+            ...(variables.title && { title: variables.title }),
+            ...(variables.icon && { icon: variables.icon }),
+            ...(variables.color && { color: variables.color }),
+          };
+        })
       );
 
       return { previousHabits };
@@ -347,6 +368,9 @@ export function useUpdateHabitTitle() {
     },
   });
 }
+
+// Алиас для обратной совместимости
+export const useUpdateHabitTitle = useUpdateHabit;
 
 // ============================================
 // useUpdateHabitReminder — обновление настроек напоминаний

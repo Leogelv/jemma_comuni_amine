@@ -8,6 +8,24 @@
 @import "./animations.css";
 
 /* ========================================
+   CSS ПЕРЕМЕННЫЕ: Telegram Safe Area Fallbacks
+   Перезаписываются из TelegramContext при инициализации SDK
+   ======================================== */
+
+:root {
+  /* Telegram SDK safe area переменные (fallback на browser env()) */
+  --tg-safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --tg-safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --tg-safe-area-inset-left: env(safe-area-inset-left, 0px);
+  --tg-safe-area-inset-right: env(safe-area-inset-right, 0px);
+  --tg-content-safe-area-inset-top: 0px;
+  --tg-content-safe-area-inset-bottom: 0px;
+  /* Комбинированные отступы (notch + Telegram UI) */
+  --tg-total-safe-area-top: env(safe-area-inset-top, 0px);
+  --tg-total-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ========================================
    БАЗОВЫЕ СТИЛИ — Светлая Apple-тема
    ======================================== */
 
@@ -20,7 +38,8 @@
 html,
 body {
   height: 100%;
-  overflow-x: hidden;
+  /* КРИТИЧНО: overflow: hidden предотвращает скролл всей страницы */
+  overflow: hidden;
 }
 
 body {
