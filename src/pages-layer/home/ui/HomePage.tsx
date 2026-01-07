@@ -7,7 +7,7 @@ import { Plus, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useTelegramUser } from '@/entities/user';
-import { useHabits, useCreateHabit, useToggleHabitCompletion, useUpdateHabitTitle, useDeleteHabit } from '@/entities/habit';
+import { useHabits, useCreateHabit, useToggleHabitCompletion, useUpdateHabit, useDeleteHabit } from '@/entities/habit';
 import { CategoryType } from '@/shared/config';
 import { HabitList } from '@/widgets/habit-list';
 import { BottomNav, TabType } from '@/widgets/bottom-nav';
@@ -49,7 +49,7 @@ export function HomePage() {
   const { data: habits = [], isLoading: habitsLoading } = useHabits(telegramId);
   const createHabit = useCreateHabit();
   const toggleHabit = useToggleHabitCompletion();
-  const updateHabitTitle = useUpdateHabitTitle();
+  const updateHabit = useUpdateHabit();
   const deleteHabit = useDeleteHabit();
 
   // Текущая ли неделя
@@ -92,12 +92,12 @@ export function HomePage() {
     }
   };
 
-  const handleUpdateTitle = (habitId: string, newTitle: string) => {
+  const handleUpdateHabit = (habitId: string, data: { title?: string; icon?: string }) => {
     if (telegramId) {
-      updateHabitTitle.mutate({
+      updateHabit.mutate({
         habit_id: habitId,
-        title: newTitle,
         telegram_id: telegramId,
+        ...data,
       });
     }
   };
@@ -188,8 +188,8 @@ export function HomePage() {
                 </button>
               </div>
 
-              {/* SCROLLABLE AREA — flex-1 overflow-y-auto pb-24 (как в SELF) */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden pb-24 scroll-touch">
+              {/* SCROLLABLE AREA — flex-1 overflow-y-auto pb-32 для запаса под BottomNav */}
+              <div className="flex-1 overflow-y-auto overflow-x-hidden pb-32 scroll-touch">
                 <div className={styles.contentWrapper}>
                   {isLoading ? (
                     <div className={styles.skeletonList}>
@@ -219,7 +219,7 @@ export function HomePage() {
                     <HabitList
                       habits={habits}
                       onToggleDate={handleToggleDate}
-                      onUpdateTitle={handleUpdateTitle}
+                      onUpdate={handleUpdateHabit}
                       onDelete={handleDeleteHabit}
                       weekStart={selectedWeekStart}
                     />
@@ -236,8 +236,8 @@ export function HomePage() {
               animate={{ opacity: 1 }}
               className="flex h-full flex-col overflow-hidden"
             >
-              {/* SCROLLABLE AREA для аналитики */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden pb-24 scroll-touch">
+              {/* SCROLLABLE AREA для аналитики — pb-32 для запаса под BottomNav */}
+              <div className="flex-1 overflow-y-auto overflow-x-hidden pb-32 scroll-touch">
                 <AnalyticsView
                   habits={habits}
                   totalPoints={totalPoints}

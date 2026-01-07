@@ -10,12 +10,12 @@ import styles from './HabitList.module.css';
 interface HabitListProps {
   habits: Habit[];
   onToggleDate: (habitId: string, date: Date) => void;
-  onUpdateTitle?: (habitId: string, newTitle: string) => void;
+  onUpdate?: (habitId: string, data: { title?: string; icon?: string }) => void;
   onDelete?: (habitId: string) => void;
   weekStart: Date;
 }
 
-export function HabitList({ habits, onToggleDate, onUpdateTitle, onDelete, weekStart }: HabitListProps) {
+export function HabitList({ habits, onToggleDate, onUpdate, onDelete, weekStart }: HabitListProps) {
   if (habits.length === 0) {
     return null;
   }
@@ -27,7 +27,7 @@ export function HabitList({ habits, onToggleDate, onUpdateTitle, onDelete, weekS
           key={habit.id}
           habit={habit}
           onToggleDate={onToggleDate}
-          onUpdateTitle={onUpdateTitle}
+          onUpdate={onUpdate}
           onDelete={onDelete}
           weekStart={weekStart}
         />

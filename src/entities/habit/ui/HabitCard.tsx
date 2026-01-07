@@ -5,7 +5,8 @@ import { format, addDays, isSameDay, parseISO, isAfter, startOfDay } from 'date-
 import { ru } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Habit, DayStatus } from '../model/types';
-import { DynamicIcon } from '@/shared/ui';
+import { DynamicIcon, HABIT_ICONS } from '@/shared/ui';
+import { cn } from '@/shared/lib';
 import styles from './HabitCard.module.css';
 
 // HabitCard — дизайн как в habitflow-ai
@@ -13,7 +14,7 @@ import styles from './HabitCard.module.css';
 interface HabitCardProps {
   habit: Habit;
   onToggleDate: (habitId: string, date: Date) => void;
-  onUpdateTitle?: (habitId: string, newTitle: string) => void;
+  onUpdate?: (habitId: string, data: { title?: string; icon?: string }) => void;
   onDelete?: (habitId: string) => void;
   weekStart: Date;
 }
@@ -24,13 +25,15 @@ const LONG_PRESS_DURATION = 500;
 // Тип анимации при клике
 type AnimationType = 'complete' | 'uncomplete' | null;
 
-export function HabitCard({ habit, onToggleDate, onUpdateTitle, onDelete, weekStart }: HabitCardProps) {
+export function HabitCard({ habit, onToggleDate, onUpdate, onDelete, weekStart }: HabitCardProps) {
   // Храним анимацию для каждого дня: dateStr -> тип анимации
   const [animatingDays, setAnimatingDays] = useState<Record<string, AnimationType>>({});
 
   // Режим редактирования
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(habit.title);
+  const [editIcon, setEditIcon] = useState(habit.icon);
+  const [showIconPicker, setShowIconPicker] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Long press detection
@@ -50,8 +53,10 @@ export function HabitCard({ habit, onToggleDate, onUpdateTitle, onDelete, weekSt
       }
       setIsEditing(true);
       setEditTitle(habit.title);
+      setEditIcon(habit.icon);
+      setShowIconPicker(false);
     }, LONG_PRESS_DURATION);
-  }, [habit.title]);
+  }, [habit.title, habit.icon]);
 
   const handlePressEnd = useCallback(() => {
     if (longPressTimer.current) {
@@ -63,19 +68,28 @@ export function HabitCard({ habit, onToggleDate, onUpdateTitle, onDelete, weekSt
   // Сохранение изменений
   const handleSave = useCallback(() => {
     const trimmed = editTitle.trim();
-    if (trimmed && trimmed !== habit.title && onUpdateTitle) {
-      onUpdateTitle(habit.id, trimmed);
+    const titleChanged = trimmed && trimmed !== habit.title;
+    const iconChanged = editIcon !== habit.icon;
+
+    if ((titleChanged || iconChanged) && onUpdate) {
+      onUpdate(habit.id, {
+        ...(titleChanged && { title: trimmed }),
+        ...(iconChanged && { icon: editIcon }),
+      });
     }
     setIsEditing(false);
     setShowDeleteConfirm(false);
-  }, [editTitle, habit.id, habit.title, onUpdateTitle]);
+    setShowIconPicker(false);
+  }, [editTitle, editIcon, habit.id, habit.title, habit.icon, onUpdate]);
 
   // Отмена редактирования
   const handleCancel = useCallback(() => {
     setIsEditing(false);
     setEditTitle(habit.title);
+    setEditIcon(habit.icon);
     setShowDeleteConfirm(false);
-  }, [habit.title]);
+    setShowIconPicker(false);
+  }, [habit.title, habit.icon]);
 
   // Удаление
   const handleDelete = useCallback(() => {
@@ -155,19 +169,65 @@ export function HabitCard({ habit, onToggleDate, onUpdateTitle, onDelete, weekSt
             exit={{ opacity: 0 }}
             className={styles.editMode}
           >
-            {/* Input для редактирования названия */}
-            <input
-              type="text"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              className={styles.editInput}
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSave();
-                if (e.key === 'Escape') handleCancel();
-              }}
-              placeholder="Название привычки"
-            />
+            {/* Строка с иконкой и названием */}
+            <div className={styles.editRow}>
+              {/* Кнопка выбора иконки */}
+              <button
+                type="button"
+                onClick={() => setShowIconPicker(!showIconPicker)}
+                className={styles.iconSelector}
+                style={{ backgroundColor: `${habit.color}20`, color: habit.color }}
+              >
+                <DynamicIcon name={editIcon} size={22} />
+              </button>
+
+              {/* Input для редактирования названия */}
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className={styles.editInput}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSave();
+                  if (e.key === 'Escape') handleCancel();
+                }}
+                placeholder="Название привычки"
+              />
+            </div>
+
+            {/* Выбор иконки */}
+            <AnimatePresence>
+              {showIconPicker && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className={styles.iconPicker}
+                >
+                  <div className={styles.iconGrid}>
+                    {HABIT_ICONS.map((item) => (
+                      <button
+                        key={item.name}
+                        type="button"
+                        onClick={() => {
+                          setEditIcon(item.name);
+                          setShowIconPicker(false);
+                        }}
+                        className={cn(
+                          styles.iconOption,
+                          editIcon === item.name && styles.iconSelected
+                        )}
+                        style={editIcon === item.name ? { borderColor: habit.color, color: habit.color } : undefined}
+                        title={item.label}
+                      >
+                        <DynamicIcon name={item.name} size={20} />
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Кнопки действий */}
             <div className={styles.editActions}>
