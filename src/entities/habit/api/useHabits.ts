@@ -7,18 +7,29 @@
  * - Optimistic updates: UI обновляется мгновенно ДО ответа сервера
  * - Rollback при ошибке: если сервер не подтвердил — откатываем
  * - Real-time sync: Supabase Realtime автоматически синхронизирует данные
+ *
+ * Кэширование:
+ * - При загрузке — мгновенно показываем данные из DeviceStorage/CloudStorage
+ * - После получения с сервера — обновляем кэш
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Habit } from '../model/types';
+import { useEffect, useRef } from 'react';
+import { Habit, HabitPreset } from '../model/types';
 import { getCategory } from '@/shared/config';
 import { useRealtimeSubscription } from '@/shared/lib/useRealtimeSubscription';
+import { supabase } from '@/shared/api/supabase';
+import { cacheHabits, loadCachedHabits } from '@/shared/lib/telegram-storage';
 
 // ============================================
 // useHabits — получение списка привычек
+// С кэшированием в DeviceStorage/CloudStorage
 // ============================================
 
 export function useHabits(telegramId: number | undefined) {
+  const queryClient = useQueryClient();
+  const cacheLoadedRef = useRef(false);
+
   // Real-time подписка на изменения таблицы habits
   useRealtimeSubscription({
     channelName: `habits-${telegramId}`,
@@ -31,7 +42,24 @@ export function useHabits(telegramId: number | undefined) {
     enabled: !!telegramId,
   });
 
-  return useQuery<Habit[]>({
+  // Загружаем из кэша ОДИН раз при маунте (для мгновенного отображения)
+  useEffect(() => {
+    if (!telegramId || cacheLoadedRef.current) return;
+    cacheLoadedRef.current = true;
+
+    // Асинхронно загружаем кэш и сетим как начальные данные
+    loadCachedHabits<Habit[]>(telegramId).then((result) => {
+      if (result.success && result.data && result.data.length > 0) {
+        // Сетим кэш как начальные данные (если ещё нет данных)
+        const currentData = queryClient.getQueryData<Habit[]>(['habits', telegramId]);
+        if (!currentData || currentData.length === 0) {
+          queryClient.setQueryData(['habits', telegramId], result.data);
+        }
+      }
+    });
+  }, [telegramId, queryClient]);
+
+  const query = useQuery<Habit[]>({
     queryKey: ['habits', telegramId],
     queryFn: async () => {
       if (!telegramId) return [];
@@ -42,24 +70,72 @@ export function useHabits(telegramId: number | undefined) {
         throw new Error('Failed to fetch habits');
       }
 
-      return response.json();
+      const habits: Habit[] = await response.json();
+
+      // Кэшируем полученные данные для следующего запуска
+      if (habits.length > 0) {
+        cacheHabits(telegramId, habits);
+      }
+
+      return habits;
     },
     enabled: !!telegramId,
     staleTime: 0, // Всегда считаем данные устаревшими (realtime приоритет)
     refetchOnMount: true,
     refetchOnWindowFocus: false, // Realtime сам обновит
   });
+
+  // Обновляем кэш при изменении данных (через optimistic updates или realtime)
+  useEffect(() => {
+    if (telegramId && query.data && query.data.length > 0) {
+      cacheHabits(telegramId, query.data);
+    }
+  }, [telegramId, query.data]);
+
+  return query;
 }
 
 // ============================================
 // useCreateHabit — создание привычки
 // ============================================
 
+// ============================================
+// useHabitPresets — получение предустановленных привычек
+// ============================================
+
+export function useHabitPresets() {
+  return useQuery<HabitPreset[]>({
+    queryKey: ['habit-presets'],
+    queryFn: async () => {
+      if (!supabase) return [];
+
+      const { data, error } = await supabase
+        .from('habit_presets')
+        .select('*')
+        .order('sort_order', { ascending: true });
+
+      if (error) {
+        console.error('[useHabitPresets] Error:', error);
+        return [];
+      }
+
+      return data || [];
+    },
+    staleTime: 1000 * 60 * 60, // 1 час — presets редко меняются
+  });
+}
+
 export function useCreateHabit() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { telegram_id: number; title: string; category: string }) => {
+    mutationFn: async (data: {
+      telegram_id: number;
+      title: string;
+      category: string;
+      icon?: string;
+      color?: string;
+    }) => {
       const response = await fetch('/api/habits', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -84,6 +160,8 @@ export function useCreateHabit() {
         telegram_id: variables.telegram_id,
         title: variables.title,
         category: variables.category as Habit['category'],
+        icon: variables.icon || 'circle',
+        color: variables.color || '#6366F1',
         streak: 0,
         completed_dates: [],
         total_completions: 0,

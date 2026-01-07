@@ -514,3 +514,198 @@ export async function clearAppState(): Promise<StorageResult> {
   logDebug('storage', 'success', 'App state cleared');
   return { success: results.some(r => r) };
 }
+
+// ============================================================================
+// HIGH-LEVEL API: Кэширование данных (привычки, пользователь)
+// Для мгновенного отображения при повторном входе
+// ============================================================================
+
+const HABITS_CACHE_KEY = 'habits_cache';
+const USER_CACHE_KEY = 'user_cache';
+const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 часа
+
+interface CachedData<T> {
+  data: T;
+  timestamp: number;
+  telegramId: number;
+}
+
+/**
+ * Сохраняет привычки в кэш для мгновенного отображения
+ */
+export async function cacheHabits<T>(telegramId: number, habits: T): Promise<StorageResult> {
+  const cached: CachedData<T> = {
+    data: habits,
+    timestamp: Date.now(),
+    telegramId,
+  };
+
+  const jsonData = JSON.stringify(cached);
+  logDebug('storage', 'info', `Caching habits for user ${telegramId}`);
+
+  // Пробуем DeviceStorage (быстрее)
+  if (isDeviceStorageAvailable()) {
+    const result = await deviceStorageSet(HABITS_CACHE_KEY, jsonData);
+    if (result.success) {
+      return result;
+    }
+  }
+
+  // Fallback на CloudStorage
+  if (isCloudStorageAvailable()) {
+    return cloudStorageSet(HABITS_CACHE_KEY, jsonData);
+  }
+
+  // Fallback на localStorage
+  try {
+    localStorage.setItem(HABITS_CACHE_KEY, jsonData);
+    logDebug('storage', 'success', 'Habits cached to localStorage');
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: 'No storage available' };
+  }
+}
+
+/**
+ * Загружает привычки из кэша
+ * Возвращает данные только если они принадлежат тому же пользователю и не истекли
+ */
+export async function loadCachedHabits<T>(telegramId: number): Promise<StorageResult<T>> {
+  logDebug('storage', 'info', `Loading cached habits for user ${telegramId}`);
+
+  const parseAndValidate = (jsonData: string): T | null => {
+    try {
+      const cached = JSON.parse(jsonData) as CachedData<T>;
+
+      // Проверяем что это тот же пользователь
+      if (cached.telegramId !== telegramId) {
+        logDebug('storage', 'info', 'Cache belongs to different user');
+        return null;
+      }
+
+      // Проверяем TTL
+      if (Date.now() - cached.timestamp > CACHE_TTL) {
+        logDebug('storage', 'info', 'Cache expired');
+        return null;
+      }
+
+      return cached.data;
+    } catch {
+      return null;
+    }
+  };
+
+  // Пробуем DeviceStorage
+  if (isDeviceStorageAvailable()) {
+    const result = await deviceStorageGet(HABITS_CACHE_KEY);
+    if (result.success && result.data) {
+      const data = parseAndValidate(result.data);
+      if (data) {
+        logDebug('storage', 'success', 'Habits loaded from DeviceStorage cache');
+        return { success: true, data };
+      }
+    }
+  }
+
+  // Пробуем CloudStorage
+  if (isCloudStorageAvailable()) {
+    const result = await cloudStorageGet(HABITS_CACHE_KEY);
+    if (result.success && result.data) {
+      const data = parseAndValidate(result.data);
+      if (data) {
+        logDebug('storage', 'success', 'Habits loaded from CloudStorage cache');
+        return { success: true, data };
+      }
+    }
+  }
+
+  // Пробуем localStorage
+  try {
+    const stored = localStorage.getItem(HABITS_CACHE_KEY);
+    if (stored) {
+      const data = parseAndValidate(stored);
+      if (data) {
+        logDebug('storage', 'success', 'Habits loaded from localStorage cache');
+        return { success: true, data };
+      }
+    }
+  } catch {
+    // Ignore
+  }
+
+  logDebug('storage', 'info', 'No valid habits cache found');
+  return { success: true, data: undefined };
+}
+
+/**
+ * Сохраняет данные пользователя в кэш
+ */
+export async function cacheUser<T>(telegramId: number, user: T): Promise<StorageResult> {
+  const cached: CachedData<T> = {
+    data: user,
+    timestamp: Date.now(),
+    telegramId,
+  };
+
+  const jsonData = JSON.stringify(cached);
+
+  if (isDeviceStorageAvailable()) {
+    const result = await deviceStorageSet(USER_CACHE_KEY, jsonData);
+    if (result.success) return result;
+  }
+
+  if (isCloudStorageAvailable()) {
+    return cloudStorageSet(USER_CACHE_KEY, jsonData);
+  }
+
+  try {
+    localStorage.setItem(USER_CACHE_KEY, jsonData);
+    return { success: true };
+  } catch {
+    return { success: false, error: 'No storage available' };
+  }
+}
+
+/**
+ * Загружает данные пользователя из кэша
+ */
+export async function loadCachedUser<T>(telegramId: number): Promise<StorageResult<T>> {
+  const parseAndValidate = (jsonData: string): T | null => {
+    try {
+      const cached = JSON.parse(jsonData) as CachedData<T>;
+      if (cached.telegramId !== telegramId) return null;
+      if (Date.now() - cached.timestamp > CACHE_TTL) return null;
+      return cached.data;
+    } catch {
+      return null;
+    }
+  };
+
+  if (isDeviceStorageAvailable()) {
+    const result = await deviceStorageGet(USER_CACHE_KEY);
+    if (result.success && result.data) {
+      const data = parseAndValidate(result.data);
+      if (data) return { success: true, data };
+    }
+  }
+
+  if (isCloudStorageAvailable()) {
+    const result = await cloudStorageGet(USER_CACHE_KEY);
+    if (result.success && result.data) {
+      const data = parseAndValidate(result.data);
+      if (data) return { success: true, data };
+    }
+  }
+
+  try {
+    const stored = localStorage.getItem(USER_CACHE_KEY);
+    if (stored) {
+      const data = parseAndValidate(stored);
+      if (data) return { success: true, data };
+    }
+  } catch {
+    // Ignore
+  }
+
+  return { success: true, data: undefined };
+}

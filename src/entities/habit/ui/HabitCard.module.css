@@ -1,51 +1,19 @@
-/* HabitCard.module.css — Habitflow-AI Style */
+/* HabitCard.module.css — Dynamic Color Style */
 
-/* Карточка с цветным фоном по категории */
+/**
+ * Карточка теперь использует динамические CSS переменные:
+ * --habit-color: основной цвет привычки (из БД)
+ * --habit-color-bg: фон карточки (color + 15% opacity)
+ * --habit-color-light: светлый оттенок для bubble (color + 30% opacity)
+ * --habit-color-shadow: тень для активных элементов (color + 40% opacity)
+ */
+
 .card {
   border-radius: 24px;
   padding: 20px;
   margin-bottom: 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-/* Цвета категорий — Sport (жёлтый) */
-.card[data-category="sport"] {
-  background: #FEF9E7;
-  --title-color: #D97706;
-  --bubble-bg: #FEF3C7;
-  --bubble-text: #D97706;
-  --active-bg: #FBBF24;
-  --active-shadow: rgba(251, 191, 36, 0.4);
-}
-
-/* Nutrition (серый) */
-.card[data-category="nutrition"] {
-  background: #F3F4F6;
-  --title-color: #4B5563;
-  --bubble-bg: #E5E7EB;
-  --bubble-text: #6B7280;
-  --active-bg: #6B7280;
-  --active-shadow: rgba(107, 114, 128, 0.4);
-}
-
-/* Regime/Sleep (голубой) */
-.card[data-category="regime"] {
-  background: #EFF6FF;
-  --title-color: #2563EB;
-  --bubble-bg: #DBEAFE;
-  --bubble-text: #3B82F6;
-  --active-bg: #60A5FA;
-  --active-shadow: rgba(96, 165, 250, 0.4);
-}
-
-/* Other (фиолетовый) */
-.card[data-category="other"] {
-  background: #F5F3FF;
-  --title-color: #7C3AED;
-  --bubble-bg: #EDE9FE;
-  --bubble-text: #8B5CF6;
-  --active-bg: #A78BFA;
-  --active-shadow: rgba(167, 139, 250, 0.4);
+  background: var(--habit-color-bg, #F5F3FF);
 }
 
 /* Header: название + streak */
@@ -54,14 +22,35 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 16px;
+  gap: 12px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.habitIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  color: var(--title-color);
   margin: 0;
   letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .streak {
@@ -168,8 +157,8 @@
   border: none;
   cursor: pointer;
   transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-  background: var(--bubble-bg);
-  color: var(--bubble-text);
+  background: var(--habit-color-light, #EDE9FE);
+  color: var(--habit-color, #8B5CF6);
   -webkit-tap-highlight-color: transparent;
   animation: breathe 4s ease-in-out infinite;
   position: relative;
@@ -183,7 +172,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: var(--active-bg);
+  background: var(--habit-color, #8B5CF6);
   opacity: 0;
   pointer-events: none;
 }
@@ -199,9 +188,9 @@
 
 /* Выполнено — залитый с тенью и увеличением + breathing */
 .dayButton.completed {
-  background: var(--active-bg);
+  background: var(--habit-color, #8B5CF6);
   color: white;
-  box-shadow: 0 4px 14px var(--active-shadow);
+  box-shadow: 0 4px 14px var(--habit-color-shadow, rgba(139, 92, 246, 0.4));
   animation: breatheCompleted 3s ease-in-out infinite;
 }
 
@@ -233,7 +222,7 @@
 /* ===== Режим редактирования ===== */
 
 .card.editing {
-  box-shadow: 0 0 0 2px var(--active-bg), 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 2px var(--habit-color, #8B5CF6), 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .editMode {
@@ -247,16 +236,16 @@
   padding: 12px 16px;
   font-size: 18px;
   font-weight: 600;
-  color: var(--title-color);
+  color: var(--habit-color, #8B5CF6);
   background: rgba(255, 255, 255, 0.7);
-  border: 2px solid var(--bubble-bg);
+  border: 2px solid var(--habit-color-light, #EDE9FE);
   border-radius: 12px;
   outline: none;
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .editInput:focus {
-  border-color: var(--active-bg);
+  border-color: var(--habit-color, #8B5CF6);
   background: rgba(255, 255, 255, 0.9);
 }
 
@@ -309,8 +298,8 @@
 }
 
 .cancelButton {
-  background: var(--bubble-bg);
-  color: var(--bubble-text);
+  background: var(--habit-color-light, #EDE9FE);
+  color: var(--habit-color, #8B5CF6);
 }
 
 .cancelButton:hover {
@@ -318,7 +307,7 @@
 }
 
 .saveButton {
-  background: var(--active-bg);
+  background: var(--habit-color, #8B5CF6);
   color: white;
 }
 

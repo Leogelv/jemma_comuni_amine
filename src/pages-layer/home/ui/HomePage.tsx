@@ -20,6 +20,11 @@ import styles from './HomePage.module.css';
 /**
  * HomePage — главная страница приложения
  *
+ * Layout паттерн (как в SELF-deploy-prod):
+ * - fixed inset-0 + tg-safe-page — фиксированный контейнер с Telegram safe area
+ * - flex column overflow-hidden — структура для раздельного скролла
+ * - flex-1 overflow-y-auto — скролл ТОЛЬКО внутри контента
+ *
  * Структура навигации:
  * - home: Трекер привычек с недельной навигацией
  * - analytics: Объединённый раздел аналитики (статистика, прогресс, история)
@@ -63,12 +68,14 @@ export function HomePage() {
   const weekEnd = endOfWeek(selectedWeekStart, { weekStartsOn: 1 });
   const weekRangeText = `${format(selectedWeekStart, 'd', { locale: ru })} – ${format(weekEnd, 'd MMMM', { locale: ru })}`;
 
-  const handleAddHabit = (title: string, category: CategoryType) => {
+  const handleAddHabit = (title: string, category: CategoryType, icon: string, color: string) => {
     if (telegramId) {
       createHabit.mutate({
         telegram_id: telegramId,
         title,
         category,
+        icon,
+        color,
       });
     }
   };
@@ -106,116 +113,129 @@ export function HomePage() {
   const totalPoints = user?.total_points || 0;
 
   return (
-    <div className={`${styles.page} ${isMobile ? 'tg-safe-page' : 'tg-safe-page-desktop'}`}>
-      {/* Контейнер */}
-      <div className={styles.container}>
-        {/* Home Tab — Трекер */}
-        {activeTab === 'home' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className={styles.tabContent}
-          >
-            {/* Header */}
-            <div className={styles.header}>
-              <h1 className={styles.pageTitle}>Привычки</h1>
-            </div>
-
-            {/* Week Navigation */}
-            <div className={styles.weekNav}>
-              <button
-                onClick={goToPreviousWeek}
-                className={styles.navButton}
-                aria-label="Предыдущая неделя"
-              >
-                <ChevronLeft size={20} />
-              </button>
-
-              <div className={styles.weekInfo}>
-                <span className={styles.weekRange}>{weekRangeText}</span>
-                {isCurrentWeek && (
-                  <span className={styles.currentWeekBadge}>Текущая</span>
-                )}
+    <>
+      {/*
+        КРИТИЧЕСКИЙ ПАТТЕРН: fixed + safe-area + internal scroll
+        1. fixed inset-0 — контейнер фиксирован на весь экран
+        2. tg-safe-page — padding-top/bottom из Telegram CSS переменных
+        3. Скролл ТОЛЬКО внутри scrollArea (flex-1 overflow-y-auto)
+      */}
+      <div className={`fixed inset-0 bg-white ${isMobile ? 'tg-safe-page' : 'tg-safe-page-desktop'}`}>
+        {/* Flex контейнер на всю высоту */}
+        <div className={styles.appContainer}>
+          {/* Home Tab — Трекер */}
+          {activeTab === 'home' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className={styles.screenWrapper}
+            >
+              {/* Header — фиксированный сверху */}
+              <div className={styles.header}>
+                <h1 className={styles.pageTitle}>Привычки</h1>
               </div>
 
-              <button
-                onClick={goToNextWeek}
-                className={`${styles.navButton} ${isCurrentWeek ? styles.navButtonDisabled : ''}`}
-                disabled={isCurrentWeek}
-                aria-label="Следующая неделя"
-              >
-                <ChevronRight size={20} />
-              </button>
-            </div>
-
-            {/* Habits List */}
-            <div className={styles.habitsSection}>
-              {isLoading ? (
-                <div className={styles.skeletonList}>
-                  <SkeletonCard />
-                  <SkeletonCard />
-                  <SkeletonCard />
-                </div>
-              ) : habits.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={styles.emptyState}
+              {/* Week Navigation — под header */}
+              <div className={styles.weekNav}>
+                <button
+                  onClick={goToPreviousWeek}
+                  className={styles.navButton}
+                  aria-label="Предыдущая неделя"
                 >
-                  <div className={styles.emptyStateIcon}>
-                    <Plus size={32} />
-                  </div>
-                  <h3>Нет привычек</h3>
-                  <p>Добавьте первую привычку для отслеживания</p>
-                  <button
-                    onClick={() => setIsAddModalOpen(true)}
-                    className={styles.emptyStateButton}
-                  >
-                    Добавить привычку
-                  </button>
-                </motion.div>
-              ) : (
-                <HabitList
+                  <ChevronLeft size={20} />
+                </button>
+
+                <div className={styles.weekInfo}>
+                  <span className={styles.weekRange}>{weekRangeText}</span>
+                  {isCurrentWeek && (
+                    <span className={styles.currentWeekBadge}>Текущая</span>
+                  )}
+                </div>
+
+                <button
+                  onClick={goToNextWeek}
+                  className={`${styles.navButton} ${isCurrentWeek ? styles.navButtonDisabled : ''}`}
+                  disabled={isCurrentWeek}
+                  aria-label="Следующая неделя"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+
+              {/* Scrollable Content Area — ТОЛЬКО ЗДЕСЬ скролл */}
+              <div className={styles.scrollArea}>
+                <div className={styles.habitsSection}>
+                  {isLoading ? (
+                    <div className={styles.skeletonList}>
+                      <SkeletonCard />
+                      <SkeletonCard />
+                      <SkeletonCard />
+                    </div>
+                  ) : habits.length === 0 ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={styles.emptyState}
+                    >
+                      <div className={styles.emptyStateIcon}>
+                        <Plus size={32} />
+                      </div>
+                      <h3>Нет привычек</h3>
+                      <p>Добавьте первую привычку для отслеживания</p>
+                      <button
+                        onClick={() => setIsAddModalOpen(true)}
+                        className={styles.emptyStateButton}
+                      >
+                        Добавить привычку
+                      </button>
+                    </motion.div>
+                  ) : (
+                    <HabitList
+                      habits={habits}
+                      onToggleDate={handleToggleDate}
+                      onUpdateTitle={handleUpdateTitle}
+                      onDelete={handleDeleteHabit}
+                      weekStart={selectedWeekStart}
+                    />
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Analytics Tab — Объединённая аналитика */}
+          {activeTab === 'analytics' && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className={styles.screenWrapper}
+            >
+              {/* Scrollable Content Area для аналитики */}
+              <div className={styles.scrollArea}>
+                <AnalyticsView
                   habits={habits}
-                  onToggleDate={handleToggleDate}
-                  onUpdateTitle={handleUpdateTitle}
-                  onDelete={handleDeleteHabit}
-                  weekStart={selectedWeekStart}
+                  totalPoints={totalPoints}
+                  user={user}
                 />
-              )}
-            </div>
-          </motion.div>
-        )}
+              </div>
+            </motion.div>
+          )}
 
-        {/* Analytics Tab — Объединённая аналитика */}
-        {activeTab === 'analytics' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className={styles.tabContent}
-          >
-            <AnalyticsView
-              habits={habits}
-              totalPoints={totalPoints}
-              user={user}
-            />
-          </motion.div>
-        )}
-
-        {/* Bottom Navigation */}
-        <BottomNav
-          activeTab={activeTab}
-          onChange={setActiveTab}
-          onAddClick={() => setIsAddModalOpen(true)}
-        />
-
-        {/* Add Habit Modal */}
-        <AddHabitModal
-          isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
-          onAdd={handleAddHabit}
-        />
+          {/* Bottom Navigation — фиксирован снизу */}
+          <BottomNav
+            activeTab={activeTab}
+            onChange={setActiveTab}
+            onAddClick={() => setIsAddModalOpen(true)}
+          />
+        </div>
       </div>
-    </div>
+
+      {/* Add Habit Modal — вне основного контейнера */}
+      <AddHabitModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAdd={handleAddHabit}
+      />
+    </>
   );
 }

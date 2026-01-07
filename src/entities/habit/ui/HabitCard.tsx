@@ -5,6 +5,7 @@ import { format, addDays, isSameDay, parseISO, isAfter, startOfDay } from 'date-
 import { ru } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Habit, DayStatus } from '../model/types';
+import { DynamicIcon } from '@/shared/ui';
 import styles from './HabitCard.module.css';
 
 // HabitCard — дизайн как в habitflow-ai
@@ -123,12 +124,20 @@ export function HabitCard({ habit, onToggleDate, onUpdateTitle, onDelete, weekSt
       ? `${habit.streak} ${habit.streak < 5 ? 'дня' : 'дней'} подряд`
       : '';
 
+  // Генерируем CSS переменные на основе цвета привычки
+  const cardStyle = {
+    '--habit-color': habit.color,
+    '--habit-color-bg': `${habit.color}15`,
+    '--habit-color-light': `${habit.color}30`,
+    '--habit-color-shadow': `${habit.color}40`,
+  } as React.CSSProperties;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={`${styles.card} ${isEditing ? styles.editing : ''}`}
-      data-category={habit.category}
+      style={cardStyle}
       onTouchStart={handlePressStart}
       onTouchEnd={handlePressEnd}
       onTouchCancel={handlePressEnd}
@@ -190,9 +199,19 @@ export function HabitCard({ habit, onToggleDate, onUpdateTitle, onDelete, weekSt
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {/* Header: название слева, streak справа */}
+            {/* Header: иконка + название слева, streak справа */}
             <div className={styles.header}>
-              <h3 className={styles.title}>{habit.title}</h3>
+              <div className={styles.titleRow}>
+                <div
+                  className={styles.habitIcon}
+                  style={{ backgroundColor: `${habit.color}20`, color: habit.color }}
+                >
+                  <DynamicIcon name={habit.icon} size={18} />
+                </div>
+                <h3 className={styles.title} style={{ color: habit.color }}>
+                  {habit.title}
+                </h3>
+              </div>
               {habit.streak > 0 && (
                 <span className={styles.streak}>{streakText}</span>
               )}

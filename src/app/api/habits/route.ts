@@ -55,6 +55,8 @@ export async function POST(request: Request) {
       telegram_id: payload.telegram_id,
       title: payload.title,
       category: payload.category || 'other',
+      icon: payload.icon || 'circle',
+      color: payload.color || '#6366F1',
       streak: 0,
       completed_dates: [],
       total_completions: 0,
