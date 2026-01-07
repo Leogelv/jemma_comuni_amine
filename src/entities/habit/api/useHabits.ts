@@ -166,6 +166,8 @@ export function useCreateHabit() {
         completed_dates: [],
         total_completions: 0,
         created_at: new Date().toISOString(),
+        reminder_enabled: false,
+        reminder_time: null,
       };
 
       queryClient.setQueryData<Habit[]>(['habits', variables.telegram_id], (old = []) => [
@@ -333,6 +335,58 @@ export function useUpdateHabitTitle() {
       // Обновляем название в UI сразу
       queryClient.setQueryData<Habit[]>(['habits', variables.telegram_id], (old = []) =>
         old.map((h) => (h.id === variables.habit_id ? { ...h, title: variables.title } : h))
+      );
+
+      return { previousHabits };
+    },
+    // Rollback при ошибке
+    onError: (_error, variables, context) => {
+      if (context?.previousHabits) {
+        queryClient.setQueryData(['habits', variables.telegram_id], context.previousHabits);
+      }
+    },
+  });
+}
+
+// ============================================
+// useUpdateHabitReminder — обновление настроек напоминаний
+// ============================================
+
+export function useUpdateHabitReminder() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      habit_id: string;
+      telegram_id: number;
+      reminder_enabled: boolean;
+      reminder_time: string | null;
+    }) => {
+      const response = await fetch('/api/habits/reminder', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update habit reminder');
+      }
+
+      return response.json();
+    },
+    // Optimistic update
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: ['habits', variables.telegram_id] });
+
+      const previousHabits = queryClient.getQueryData<Habit[]>(['habits', variables.telegram_id]);
+
+      // Обновляем в UI сразу
+      queryClient.setQueryData<Habit[]>(['habits', variables.telegram_id], (old = []) =>
+        old.map((h) =>
+          h.id === variables.habit_id
+            ? { ...h, reminder_enabled: variables.reminder_enabled, reminder_time: variables.reminder_time }
+            : h
+        )
       );
 
       return { previousHabits };

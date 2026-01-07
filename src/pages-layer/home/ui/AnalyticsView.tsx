@@ -379,7 +379,7 @@ export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps)
                       completed && styles.calDayCompleted,
                       isCurrentDay && styles.calDayToday
                     )}
-                    style={completed ? { backgroundColor: category.color } : undefined}
+                    style={completed ? { backgroundColor: selectedHabit.color } : undefined}
                   >
                     {format(day, 'd')}
                   </div>
@@ -458,10 +458,13 @@ export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps)
             <h3 className={styles.sectionTitle}>Привычки</h3>
             <div className={styles.habitsList}>
               {habits.map((habit, index) => {
-                const category = getCategory(habit.category);
                 const completedTodayHabit = habit.completed_dates.some(d =>
                   isSameDay(parseISO(d), today)
                 );
+                // Краткая статистика: выполнений за последние 7 дней
+                const last7 = last7Days.filter(day =>
+                  habit.completed_dates.some(d => isSameDay(parseISO(d), day))
+                ).length;
 
                 return (
                   <motion.button
@@ -474,13 +477,21 @@ export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps)
                   >
                     <div className={styles.habitLeft}>
                       <div
-                        className={styles.habitColorBar}
-                        style={{ backgroundColor: category.color }}
-                      />
+                        className={styles.habitIconWrapper}
+                        style={{ backgroundColor: `${habit.color}20`, color: habit.color }}
+                      >
+                        <DynamicIcon name={habit.icon} size={18} />
+                      </div>
                       <div className={styles.habitInfo}>
                         <span className={styles.habitName}>{habit.title}</span>
                         <span className={styles.habitMeta}>
-                          {category.emoji} {habit.streak > 0 ? `${habit.streak} дн. стрик` : 'Нет стрика'}
+                          {habit.streak > 0 ? (
+                            <><Flame size={12} style={{ color: '#F97316' }} /> {habit.streak} дн.</>
+                          ) : (
+                            'Нет стрика'
+                          )}
+                          <span className={styles.habitStatDot}>•</span>
+                          <span>{last7}/7 за неделю</span>
                         </span>
                       </div>
                     </div>
