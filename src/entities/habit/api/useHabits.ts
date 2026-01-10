@@ -191,7 +191,7 @@ export function useCreateHabit() {
 }
 
 // ============================================
-// useToggleHabitCompletion — FIRE-AND-FORGET toggle
+// useToggleHabitCompletion — НАДЁЖНЫЙ toggle с очередью
 // ============================================
 
 interface ToggleVariables {
@@ -207,46 +207,82 @@ interface ToggleContext {
   pointsDelta: number;
 }
 
+// Очередь мутаций для сериализации запросов к одной привычке
+// Предотвращает race condition при быстрых последовательных кликах
+const mutationQueues = new Map<string, Promise<unknown>>();
+
+async function queueMutation<T>(habitId: string, fn: () => Promise<T>): Promise<T> {
+  // Ждём завершения предыдущей мутации для этой привычки
+  const previousPromise = mutationQueues.get(habitId) || Promise.resolve();
+
+  const currentPromise = previousPromise
+    .catch(() => {}) // Игнорируем ошибки предыдущих мутаций
+    .then(() => fn());
+
+  mutationQueues.set(habitId, currentPromise);
+
+  try {
+    return await currentPromise;
+  } finally {
+    // Очищаем очередь если это последняя мутация
+    if (mutationQueues.get(habitId) === currentPromise) {
+      mutationQueues.delete(habitId);
+    }
+  }
+}
+
 export function useToggleHabitCompletion() {
   const queryClient = useQueryClient();
 
   return useMutation<{ habit: Habit; pointsDelta: number }, Error, ToggleVariables, ToggleContext>({
-    // API запрос — fire-and-forget, результат приходит через Realtime
+    // API запрос с очередью — каждая мутация ждёт предыдущую
     mutationFn: async (data) => {
-      const response = await fetch('/api/habits', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+      return queueMutation(data.habit_id, async () => {
+        const response = await fetch('/api/habits', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || 'Failed to toggle habit');
+        }
+
+        return response.json();
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to toggle habit');
-      }
-
-      return response.json();
     },
 
-    // ===== OPTIMISTIC UPDATE =====
-    // UI обновляется МГНОВЕННО, не ждём сервер
-    onMutate: async (variables) => {
-      // 1. Отменяем любые pending запросы
-      await queryClient.cancelQueries({ queryKey: ['habits', variables.telegram_id] });
-      await queryClient.cancelQueries({ queryKey: ['user', variables.telegram_id] });
+    // Retry при 409 Conflict или сетевых ошибках
+    retry: (failureCount, error) => {
+      // Максимум 3 retry
+      if (failureCount >= 3) return false;
+      // Retry при conflict или сетевых ошибках
+      const message = error?.message || '';
+      return message.includes('Conflict') || message.includes('fetch');
+    },
+    retryDelay: (attemptIndex) => Math.min(100 * 2 ** attemptIndex, 1000),
 
-      // 2. Сохраняем предыдущие данные для rollback
+    // ===== OPTIMISTIC UPDATE =====
+    // UI обновляется МГНОВЕННО, но учитываем pending мутации
+    onMutate: async (variables) => {
+      // НЕ отменяем queries — это может сломать pending мутации
+      // Вместо этого просто получаем текущее состояние кэша
+
+      // Сохраняем предыдущие данные для rollback
       const previousHabits = queryClient.getQueryData<Habit[]>(['habits', variables.telegram_id]);
       const previousUser = queryClient.getQueryData<{ total_points?: number }>([
         'user',
         variables.telegram_id,
       ]);
 
-      // 3. Находим привычку и определяем статус
+      // Находим привычку и определяем статус
       const habit = previousHabits?.find((h) => h.id === variables.habit_id);
       const wasCompleted = habit?.completed_dates?.includes(variables.date) ?? false;
       const category = getCategory(habit?.category || 'other');
       const pointsDelta = wasCompleted ? -category.points : category.points;
 
-      // 4. Обновляем habits кэш МГНОВЕННО
+      // Обновляем habits кэш МГНОВЕННО
       queryClient.setQueryData<Habit[]>(['habits', variables.telegram_id], (oldHabits = []) => {
         return oldHabits.map((h) => {
           if (h.id !== variables.habit_id) return h;
@@ -268,7 +304,7 @@ export function useToggleHabitCompletion() {
         });
       });
 
-      // 5. Обновляем user points кэш МГНОВЕННО
+      // Обновляем user points кэш МГНОВЕННО
       queryClient.setQueryData<{ total_points?: number }>(
         ['user', variables.telegram_id],
         (oldUser) => {
@@ -300,8 +336,17 @@ export function useToggleHabitCompletion() {
       }
     },
 
-    // ===== НЕ ИНВАЛИДИРУЕМ — Realtime сам обновит =====
-    // onSettled не нужен, т.к. Supabase Realtime пришлёт актуальные данные
+    // ===== СИНХРОНИЗАЦИЯ ПОСЛЕ ЗАВЕРШЕНИЯ =====
+    // Гарантируем что данные актуальны даже если Realtime запоздает
+    onSettled: (_data, _error, variables) => {
+      // Инвалидируем через небольшую задержку, чтобы не мешать pending мутациям
+      setTimeout(() => {
+        // Проверяем нет ли pending мутаций для этой привычки
+        if (!mutationQueues.has(variables.habit_id)) {
+          queryClient.invalidateQueries({ queryKey: ['habits', variables.telegram_id] });
+        }
+      }, 500);
+    },
   });
 }
 

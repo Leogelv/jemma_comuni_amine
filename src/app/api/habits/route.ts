@@ -80,6 +80,7 @@ export async function POST(request: Request) {
 }
 
 // PATCH - Обновить привычку (toggle completion)
+// Использует атомарную операцию с retry при конфликтах
 export async function PATCH(request: Request) {
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase is not configured' }, { status: 500 });
@@ -93,59 +94,90 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'habit_id and date are required' }, { status: 400 });
     }
 
-    // Получаем текущую привычку
-    const { data: habit, error: fetchError } = await supabase
-      .from('habits')
-      .select('*')
-      .eq('id', habit_id)
-      .single();
-
-    if (fetchError || !habit) {
-      return NextResponse.json({ error: 'Habit not found' }, { status: 404 });
-    }
-
-    const completedDates: string[] = habit.completed_dates || [];
-    const isCompleted = completedDates.includes(date);
-
-    let newDates: string[];
+    // Retry логика для обработки race conditions
+    const MAX_RETRIES = 3;
+    let attempt = 0;
+    let updatedHabit = null;
     let pointsDelta = 0;
 
-    if (isCompleted) {
-      // Убираем дату
-      newDates = completedDates.filter(d => d !== date);
-      pointsDelta = -getPointsForCategory(habit.category);
-    } else {
-      // Добавляем дату
-      newDates = [...completedDates, date];
-      pointsDelta = getPointsForCategory(habit.category);
+    while (attempt < MAX_RETRIES) {
+      attempt++;
+
+      // 1. Получаем текущую привычку
+      const { data: habit, error: fetchError } = await supabase
+        .from('habits')
+        .select('*')
+        .eq('id', habit_id)
+        .single();
+
+      if (fetchError || !habit) {
+        return NextResponse.json({ error: 'Habit not found' }, { status: 404 });
+      }
+
+      const completedDates: string[] = habit.completed_dates || [];
+      const isCompleted = completedDates.includes(date);
+
+      let newDates: string[];
+
+      if (isCompleted) {
+        newDates = completedDates.filter(d => d !== date);
+        pointsDelta = -getPointsForCategory(habit.category);
+      } else {
+        newDates = [...completedDates, date];
+        pointsDelta = getPointsForCategory(habit.category);
+      }
+
+      const streak = calculateStreak(newDates);
+
+      // 2. Атомарный update с проверкой что данные не изменились (optimistic locking)
+      // Используем условие на completed_dates чтобы убедиться что никто не изменил данные
+      const { data: updateResult, error: updateError } = await supabase
+        .from('habits')
+        .update({
+          completed_dates: newDates,
+          streak,
+          total_completions: newDates.length,
+        })
+        .eq('id', habit_id)
+        .eq('completed_dates', completedDates) // Optimistic lock: обновляем только если данные не изменились
+        .select();
+
+      if (updateError) {
+        console.error(`[api/habits] PATCH error (attempt ${attempt})`, updateError);
+        return NextResponse.json({ error: updateError.message }, { status: 500 });
+      }
+
+      // 3. Проверяем что update прошёл (если массив пустой — данные изменились, retry)
+      if (updateResult && updateResult.length > 0) {
+        updatedHabit = updateResult[0];
+        break; // Успех!
+      }
+
+      // Данные изменились между SELECT и UPDATE — retry
+      console.log(`[api/habits] PATCH conflict detected, retry ${attempt}/${MAX_RETRIES}`);
+
+      if (attempt < MAX_RETRIES) {
+        // Небольшая задержка перед retry (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 50 * attempt));
+      }
     }
 
-    // Вычисляем streak
-    const streak = calculateStreak(newDates);
-
-    // Обновляем привычку
-    const { data: updatedHabit, error: updateError } = await supabase
-      .from('habits')
-      .update({
-        completed_dates: newDates,
-        streak,
-        total_completions: newDates.length,
-      })
-      .eq('id', habit_id)
-      .select();
-
-    if (updateError) {
-      console.error('[api/habits] PATCH error', updateError);
-      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    // Если после всех попыток не удалось — возвращаем ошибку
+    if (!updatedHabit) {
+      console.error('[api/habits] PATCH failed after max retries');
+      return NextResponse.json(
+        { error: 'Conflict: please retry' },
+        { status: 409 }
+      );
     }
 
-    // Обновляем баллы пользователя
+    // 4. Обновляем баллы пользователя
     if (telegram_id && pointsDelta !== 0) {
       await updateUserPoints(telegram_id, pointsDelta);
     }
 
     return NextResponse.json({
-      habit: updatedHabit?.[0],
+      habit: updatedHabit,
       pointsDelta,
     });
   } catch (err) {
