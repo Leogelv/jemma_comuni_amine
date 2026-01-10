@@ -129,8 +129,7 @@ export async function PATCH(request: Request) {
 
       const streak = calculateStreak(newDates);
 
-      // 2. Атомарный update с проверкой что данные не изменились (optimistic locking)
-      // Используем условие на completed_dates чтобы убедиться что никто не изменил данные
+      // 2. Update привычки
       const { data: updateResult, error: updateError } = await supabase
         .from('habits')
         .update({
@@ -139,36 +138,21 @@ export async function PATCH(request: Request) {
           total_completions: newDates.length,
         })
         .eq('id', habit_id)
-        .eq('completed_dates', completedDates) // Optimistic lock: обновляем только если данные не изменились
         .select();
 
       if (updateError) {
-        console.error(`[api/habits] PATCH error (attempt ${attempt})`, updateError);
+        console.error(`[api/habits] PATCH error`, updateError);
         return NextResponse.json({ error: updateError.message }, { status: 500 });
       }
 
-      // 3. Проверяем что update прошёл (если массив пустой — данные изменились, retry)
       if (updateResult && updateResult.length > 0) {
         updatedHabit = updateResult[0];
-        break; // Успех!
-      }
-
-      // Данные изменились между SELECT и UPDATE — retry
-      console.log(`[api/habits] PATCH conflict detected, retry ${attempt}/${MAX_RETRIES}`);
-
-      if (attempt < MAX_RETRIES) {
-        // Небольшая задержка перед retry (exponential backoff)
-        await new Promise(resolve => setTimeout(resolve, 50 * attempt));
+        break;
       }
     }
 
-    // Если после всех попыток не удалось — возвращаем ошибку
     if (!updatedHabit) {
-      console.error('[api/habits] PATCH failed after max retries');
-      return NextResponse.json(
-        { error: 'Conflict: please retry' },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: 'Habit not found' }, { status: 404 });
     }
 
     // 4. Обновляем баллы пользователя
