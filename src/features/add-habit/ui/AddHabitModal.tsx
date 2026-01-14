@@ -34,8 +34,21 @@ export function AddHabitModal({ isOpen, onClose, onAdd }: AddHabitModalProps) {
   const [icon, setIcon] = useState('circle');
   const [color, setColor] = useState('#6366F1');
   const [searchQuery, setSearchQuery] = useState('');
+  const [iconSearchQuery, setIconSearchQuery] = useState('');
 
   const { data: presets = [] } = useHabitPresets();
+
+  // Фильтрация иконок по поиску
+  const filteredIcons = useMemo(() => {
+    if (!iconSearchQuery.trim()) return HABIT_ICONS;
+    const query = iconSearchQuery.toLowerCase().trim();
+    return HABIT_ICONS.filter(
+      (item) =>
+        item.label.toLowerCase().includes(query) ||
+        item.keywords.toLowerCase().includes(query) ||
+        item.name.toLowerCase().includes(query)
+    );
+  }, [iconSearchQuery]);
 
   // Фильтрация пресетов по поиску
   const filteredPresets = useMemo(() => {
@@ -72,6 +85,7 @@ export function AddHabitModal({ isOpen, onClose, onAdd }: AddHabitModalProps) {
     setIcon('circle');
     setColor('#6366F1');
     setSearchQuery('');
+    setIconSearchQuery('');
   };
 
   const handleClose = () => {
@@ -94,7 +108,10 @@ export function AddHabitModal({ isOpen, onClose, onAdd }: AddHabitModalProps) {
 
   const handleBack = () => {
     if (step === 'custom') setStep('presets');
-    else if (step === 'icon' || step === 'color') setStep('custom');
+    else if (step === 'icon') {
+      setIconSearchQuery('');
+      setStep('custom');
+    } else if (step === 'color') setStep('custom');
   };
 
   const getCategoryInfo = (catId: string) =>
@@ -325,24 +342,40 @@ export function AddHabitModal({ isOpen, onClose, onAdd }: AddHabitModalProps) {
               {/* STEP: Icon picker */}
               {step === 'icon' && (
                 <div className={styles.pickerStep}>
+                  {/* Поиск по иконкам */}
+                  <div className={styles.searchWrapper}>
+                    <Search size={18} className={styles.searchIcon} />
+                    <input
+                      type="text"
+                      placeholder="Поиск: спорт, книга, вода..."
+                      value={iconSearchQuery}
+                      onChange={(e) => setIconSearchQuery(e.target.value)}
+                      className={styles.searchInput}
+                    />
+                  </div>
                   <div className={styles.iconsGrid}>
-                    {HABIT_ICONS.map((item) => (
-                      <button
-                        key={item.name}
-                        onClick={() => {
-                          setIcon(item.name);
-                          setStep('custom');
-                        }}
-                        className={cn(
-                          styles.iconOption,
-                          icon === item.name && styles.iconSelected
-                        )}
-                        style={icon === item.name ? { borderColor: color, color } : undefined}
-                        title={item.label}
-                      >
-                        <DynamicIcon name={item.name} size={24} />
-                      </button>
-                    ))}
+                    {filteredIcons.length > 0 ? (
+                      filteredIcons.map((item) => (
+                        <button
+                          key={item.name}
+                          onClick={() => {
+                            setIcon(item.name);
+                            setIconSearchQuery('');
+                            setStep('custom');
+                          }}
+                          className={cn(
+                            styles.iconOption,
+                            icon === item.name && styles.iconSelected
+                          )}
+                          style={icon === item.name ? { borderColor: color, color } : undefined}
+                          title={item.label}
+                        >
+                          <DynamicIcon name={item.name} size={24} />
+                        </button>
+                      ))
+                    ) : (
+                      <div className={styles.emptyIcons}>Ничего не найдено</div>
+                    )}
                   </div>
                 </div>
               )}
