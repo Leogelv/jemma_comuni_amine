@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useTelegramUser, useUpdateProfile, type TgUser, type Gender } from '@/entities/user';
 import { Habit, useUpdateHabitReminder } from '@/entities/habit';
 import { CATEGORIES, type CategoryType } from '@/shared/config';
+import { DynamicIcon } from '@/shared/ui';
 import styles from './ProfileView.module.css';
 
 interface ProfileViewProps {
@@ -269,11 +270,15 @@ export function ProfileView({ onBack, habits }: ProfileViewProps) {
 
             <div className={styles.card}>
               {habits.map((habit) => {
-                const category = CATEGORIES[habit.category as CategoryType] || CATEGORIES.other;
                 return (
                   <div key={habit.id} className={styles.habitReminderRow}>
                     <div className={styles.habitInfo}>
-                      <span className={styles.habitEmoji}>{category.emoji}</span>
+                      <div
+                        className={styles.habitIconWrapper}
+                        style={{ backgroundColor: `${habit.color}20`, color: habit.color }}
+                      >
+                        <DynamicIcon name={habit.icon} size={18} />
+                      </div>
                       <span className={styles.habitTitle}>{habit.title}</span>
                     </div>
 
