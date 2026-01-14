@@ -92,7 +92,7 @@ export function HomePage() {
     }
   };
 
-  const handleUpdateHabit = (habitId: string, data: { title?: string; icon?: string }) => {
+  const handleUpdateHabit = (habitId: string, data: { title?: string; icon?: string; color?: string }) => {
     if (telegramId) {
       updateHabit.mutate({
         habit_id: habitId,

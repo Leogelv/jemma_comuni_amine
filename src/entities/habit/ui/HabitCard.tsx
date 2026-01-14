@@ -14,7 +14,7 @@ import styles from './HabitCard.module.css';
 interface HabitCardProps {
   habit: Habit;
   onToggleDate: (habitId: string, date: Date) => void;
-  onUpdate?: (habitId: string, data: { title?: string; icon?: string }) => void;
+  onUpdate?: (habitId: string, data: { title?: string; icon?: string; color?: string }) => void;
   onDelete?: (habitId: string) => void;
   weekStart: Date;
 }
@@ -136,26 +136,31 @@ export function HabitCard({ habit, onToggleDate, onUpdate, onDelete, weekStart }
     const trimmed = editTitle.trim();
     const titleChanged = trimmed && trimmed !== habit.title;
     const iconChanged = editIcon !== habit.icon;
+    const colorChanged = editColor !== habit.color;
 
-    if ((titleChanged || iconChanged) && onUpdate) {
+    if ((titleChanged || iconChanged || colorChanged) && onUpdate) {
       onUpdate(habit.id, {
         ...(titleChanged && { title: trimmed }),
         ...(iconChanged && { icon: editIcon }),
+        ...(colorChanged && { color: editColor }),
       });
     }
     setIsEditing(false);
     setShowDeleteConfirm(false);
     setShowIconPicker(false);
-  }, [editTitle, editIcon, habit.id, habit.title, habit.icon, onUpdate]);
+    setShowColorPicker(false);
+  }, [editTitle, editIcon, editColor, habit.id, habit.title, habit.icon, habit.color, onUpdate]);
 
   // Отмена редактирования
   const handleCancel = useCallback(() => {
     setIsEditing(false);
     setEditTitle(habit.title);
     setEditIcon(habit.icon);
+    setEditColor(habit.color);
     setShowDeleteConfirm(false);
     setShowIconPicker(false);
-  }, [habit.title, habit.icon]);
+    setShowColorPicker(false);
+  }, [habit.title, habit.icon, habit.color]);
 
   // Удаление
   const handleDelete = useCallback(() => {
@@ -236,17 +241,26 @@ export function HabitCard({ habit, onToggleDate, onUpdate, onDelete, weekStart }
             exit={{ opacity: 0 }}
             className={styles.editMode}
           >
-            {/* Строка с иконкой и названием */}
+            {/* Строка с иконкой, цветом и названием */}
             <div className={styles.editRow}>
               {/* Кнопка выбора иконки */}
               <button
                 type="button"
-                onClick={() => setShowIconPicker(!showIconPicker)}
+                onClick={() => { setShowIconPicker(!showIconPicker); setShowColorPicker(false); }}
                 className={styles.iconSelector}
-                style={{ backgroundColor: `${habit.color}20`, color: habit.color }}
+                style={{ backgroundColor: `${editColor}20`, color: editColor }}
               >
                 <DynamicIcon name={editIcon} size={22} />
               </button>
+
+              {/* Кнопка выбора цвета */}
+              <button
+                type="button"
+                onClick={() => { setShowColorPicker(!showColorPicker); setShowIconPicker(false); }}
+                className={styles.colorSelector}
+                style={{ backgroundColor: editColor }}
+                title="Выбрать цвет"
+              />
 
               {/* Input для редактирования названия */}
               <input
@@ -254,6 +268,7 @@ export function HabitCard({ habit, onToggleDate, onUpdate, onDelete, weekStart }
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
                 className={styles.editInput}
+                style={{ color: editColor, borderColor: `${editColor}30` }}
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSave();
@@ -290,6 +305,37 @@ export function HabitCard({ habit, onToggleDate, onUpdate, onDelete, weekStart }
                       >
                         <DynamicIcon name={item.name} size={20} />
                       </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Выбор цвета */}
+            <AnimatePresence>
+              {showColorPicker && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className={styles.colorPicker}
+                >
+                  <div className={styles.colorGrid}>
+                    {HABIT_COLORS.map((color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => {
+                          setEditColor(color);
+                          setShowColorPicker(false);
+                        }}
+                        className={cn(
+                          styles.colorOption,
+                          editColor === color && styles.colorSelected
+                        )}
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
                     ))}
                   </div>
                 </motion.div>

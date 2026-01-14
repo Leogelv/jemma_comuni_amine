@@ -295,6 +295,62 @@
   background: rgba(255, 255, 255, 0.9);
 }
 
+/* Кнопка выбора цвета */
+.colorSelector {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.colorSelector:hover {
+  transform: scale(1.1);
+}
+
+.colorSelector:active {
+  transform: scale(0.95);
+}
+
+/* Палитра цветов */
+.colorPicker {
+  overflow: hidden;
+}
+
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+}
+
+.colorOption {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.colorOption:hover {
+  transform: scale(1.15);
+}
+
+.colorOption.colorSelected {
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: scale(1.1);
+}
+
 .editInput {
   flex: 1;
   min-width: 0;

@@ -12,7 +12,7 @@ import styles from './HabitList.module.css';
 interface HabitListProps {
   habits: Habit[];
   onToggleDate: (habitId: string, date: Date) => void;
-  onUpdate?: (habitId: string, data: { title?: string; icon?: string }) => void;
+  onUpdate?: (habitId: string, data: { title?: string; icon?: string; color?: string }) => void;
   onDelete?: (habitId: string) => void;
   weekStart: Date;
 }
