@@ -70,12 +70,13 @@ interface AnalyticsViewProps {
   habits: Habit[];
   totalPoints: number;
   user?: TgUser | null;
+  onShowProfile?: () => void;
 }
 
 type ChartMode = 'binary' | 'streak';
 type ChartPeriod = '7' | '30';
 
-export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps) {
+export function AnalyticsView({ habits, totalPoints, user, onShowProfile }: AnalyticsViewProps) {
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
   const [detailMonth, setDetailMonth] = useState(new Date());
   const [chartMode, setChartMode] = useState<ChartMode>('binary');
@@ -691,10 +692,14 @@ export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps)
         </div>
       )}
 
-      {/* Профиль пользователя */}
+      {/* Профиль пользователя — кликабельный для перехода в настройки */}
       {user && (
         <div className={styles.section}>
-          <div className={styles.profileCard}>
+          <button
+            onClick={onShowProfile}
+            className={styles.profileCard}
+            type="button"
+          >
             <div className={styles.profileAvatar}>
               {user.photo_url ? (
                 <img src={user.photo_url} alt={user.first_name || 'User'} />
@@ -716,7 +721,8 @@ export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps)
                 <span className={styles.profileStatLabel}>выполнений</span>
               </div>
             </div>
-          </div>
+            <ChevronRight size={18} className={styles.profileChevron} />
+          </button>
         </div>
       )}
     </div>

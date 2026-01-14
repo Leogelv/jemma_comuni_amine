@@ -316,6 +316,25 @@
   display: flex;
   align-items: center;
   gap: 16px;
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-base), transform var(--transition-base);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profileCard:hover {
+  background: var(--color-bg-secondary);
+}
+
+.profileCard:active {
+  transform: scale(0.98);
+}
+
+.profileChevron {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
 }
 
 .profileAvatar {

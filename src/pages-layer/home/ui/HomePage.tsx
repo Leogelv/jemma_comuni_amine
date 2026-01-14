@@ -250,6 +250,7 @@ export function HomePage() {
                 habits={habits}
                 totalPoints={totalPoints}
                 user={user}
+                onShowProfile={() => setShowProfile(true)}
               />
               {/* Запас хода снизу для BottomNav */}
               <div style={{ height: '120px' }} />
