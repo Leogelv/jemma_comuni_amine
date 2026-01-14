@@ -573,42 +573,122 @@
 }
 
 /* ========================================
-   PROGRESS BARS
+   LINE CHART (Progress)
    ======================================== */
 
-.progressItem {
-  margin-bottom: 16px;
-}
-
-.progressItem:last-child {
-  margin-bottom: 0;
-}
-
-.progressHeader {
+.chartHeader {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: var(--color-text-secondary);
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-.progressValue {
-  font-weight: 600;
+@media (min-width: 480px) {
+  .chartHeader {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.chartHeader .sectionTitle {
+  margin: 0;
+}
+
+.chartControls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.periodSwitcher,
+.modeSwitcher {
+  display: flex;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 2px;
+}
+
+.periodButton,
+.modeButton {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.modeButton {
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.periodButton:hover,
+.modeButton:hover {
   color: var(--color-text);
 }
 
-.progressBar {
-  height: 8px;
-  background: var(--color-bg-secondary);
-  border-radius: 4px;
-  overflow: hidden;
+.periodButton.active,
+.modeButton.active {
+  background: var(--card-bg);
+  color: var(--color-text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.progressFill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.5s ease;
+.chartStats {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.chartStatValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+.chartStatLabel {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.lineChartWrapper {
+  height: 180px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .lineChartWrapper {
+    height: 220px;
+  }
+}
+
+.chartTooltip {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-bg-secondary);
+}
+
+.tooltipDate {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-bottom: 2px;
+}
+
+.tooltipValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 /* ========================================

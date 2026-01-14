@@ -6,15 +6,24 @@ import {
   Flame,
   Target,
   TrendingUp,
-  Calendar,
-  BarChart3,
   ChevronLeft,
   ChevronRight,
   ArrowLeft,
   CheckCircle2,
   Circle,
   Zap,
+  Activity,
 } from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  ReferenceLine,
+} from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   format,
@@ -63,9 +72,14 @@ interface AnalyticsViewProps {
   user?: TgUser | null;
 }
 
+type ChartMode = 'binary' | 'streak';
+type ChartPeriod = '7' | '30';
+
 export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps) {
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
   const [detailMonth, setDetailMonth] = useState(new Date());
+  const [chartMode, setChartMode] = useState<ChartMode>('binary');
+  const [chartPeriod, setChartPeriod] = useState<ChartPeriod>('7');
 
   const today = new Date();
   const selectedHabit = habits.find(h => h.id === selectedHabitId);
@@ -79,16 +93,25 @@ export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps)
   const maxStreak = Math.max(...habits.map(h => h.streak), 0);
   const totalCompletions = habits.reduce((acc, h) => acc + h.total_completions, 0);
 
-  // Успешность за последние 7 дней
-  const last7Days = Array.from({ length: 7 }, (_, i) => subDays(today, i));
-  const completionsLast7Days = last7Days.reduce((acc, day) => {
+  // Успешность за текущую календарную неделю (пн-вс)
+  const currentWeekStart = startOfWeek(today, { weekStartsOn: 1 });
+  const currentWeekDays = eachDayOfInterval({
+    start: currentWeekStart,
+    end: today // до сегодня включительно, не до конца недели
+  });
+  const daysInCurrentWeek = currentWeekDays.length;
+
+  const completionsThisWeek = currentWeekDays.reduce((acc, day) => {
     return acc + habits.filter(h =>
       h.completed_dates.some(d => isSameDay(parseISO(d), day))
     ).length;
   }, 0);
-  const weeklySuccessRate = habits.length > 0
-    ? Math.round((completionsLast7Days / (habits.length * 7)) * 100)
+  const weeklySuccessRate = habits.length > 0 && daysInCurrentWeek > 0
+    ? Math.round((completionsThisWeek / (habits.length * daysInCurrentWeek)) * 100)
     : 0;
+
+  // Last 7 days для других расчётов (детальная статистика привычек)
+  const last7Days = Array.from({ length: 7 }, (_, i) => subDays(today, i));
 
   // === СТАТИСТИКА ПО КАТЕГОРИЯМ ===
 
@@ -167,6 +190,33 @@ export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps)
       };
     });
 
+    // Данные для line charts (7 и 30 дней)
+    const generateChartData = (days: number) => {
+      const daysArray = Array.from({ length: days }, (_, i) => subDays(today, days - 1 - i));
+      let runningStreak = 0;
+
+      return daysArray.map((day, index) => {
+        const completed = dates.some(d => isSameDay(d, day)) ? 1 : 0;
+
+        // Вычисляем накопительный streak на этот день
+        if (completed) {
+          runningStreak++;
+        } else {
+          runningStreak = 0;
+        }
+
+        return {
+          date: format(day, 'd', { locale: ru }),
+          fullDate: format(day, 'd MMM', { locale: ru }),
+          binary: completed,
+          streak: runningStreak,
+        };
+      });
+    };
+
+    const chartData7 = generateChartData(7);
+    const chartData30 = generateChartData(30);
+
     return {
       completedLast7,
       completedLast30,
@@ -174,6 +224,8 @@ export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps)
       daysSinceCreation,
       overallRate,
       last12Weeks,
+      chartData7,
+      chartData30,
       firstCompletion: sortedDates.length > 0 ? sortedDates[sortedDates.length - 1] : null,
       lastCompletion: sortedDates.length > 0 ? sortedDates[0] : null,
     };
@@ -302,39 +354,134 @@ export function AnalyticsView({ habits, totalPoints, user }: AnalyticsViewProps)
           </div>
         </div>
 
-        {/* Progress bars */}
+        {/* Line Chart с переключателями */}
         <div className={styles.section}>
           <div className={styles.sectionCard}>
-            <h3 className={styles.sectionTitle}>Прогресс</h3>
-
-            <div className={styles.progressItem}>
-              <div className={styles.progressHeader}>
-                <span>За последние 7 дней</span>
-                <span className={styles.progressValue}>{habitDetailStats.completedLast7}/7</span>
-              </div>
-              <div className={styles.progressBar}>
-                <motion.div
-                  className={styles.progressFill}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(habitDetailStats.completedLast7 / 7) * 100}%` }}
-                  style={{ backgroundColor: selectedHabit.color }}
-                />
+            <div className={styles.chartHeader}>
+              <h3 className={styles.sectionTitle}>Прогресс</h3>
+              <div className={styles.chartControls}>
+                {/* Переключатель периода */}
+                <div className={styles.periodSwitcher}>
+                  <button
+                    onClick={() => setChartPeriod('7')}
+                    className={cn(styles.periodButton, chartPeriod === '7' && styles.active)}
+                  >
+                    7 дней
+                  </button>
+                  <button
+                    onClick={() => setChartPeriod('30')}
+                    className={cn(styles.periodButton, chartPeriod === '30' && styles.active)}
+                  >
+                    30 дней
+                  </button>
+                </div>
+                {/* Переключатель режима */}
+                <div className={styles.modeSwitcher}>
+                  <button
+                    onClick={() => setChartMode('binary')}
+                    className={cn(styles.modeButton, chartMode === 'binary' && styles.active)}
+                    title="Выполнено / не выполнено"
+                  >
+                    <CheckCircle2 size={16} />
+                  </button>
+                  <button
+                    onClick={() => setChartMode('streak')}
+                    className={cn(styles.modeButton, chartMode === 'streak' && styles.active)}
+                    title="Накопительный стрик"
+                  >
+                    <Activity size={16} />
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className={styles.progressItem}>
-              <div className={styles.progressHeader}>
-                <span>За последние 30 дней</span>
-                <span className={styles.progressValue}>{habitDetailStats.completedLast30}/30</span>
-              </div>
-              <div className={styles.progressBar}>
-                <motion.div
-                  className={styles.progressFill}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(habitDetailStats.completedLast30 / 30) * 100}%` }}
-                  style={{ backgroundColor: selectedHabit.color }}
-                />
-              </div>
+            {/* Статистика периода */}
+            <div className={styles.chartStats}>
+              <span className={styles.chartStatValue}>
+                {chartPeriod === '7' ? habitDetailStats.completedLast7 : habitDetailStats.completedLast30}
+                /{chartPeriod}
+              </span>
+              <span className={styles.chartStatLabel}>
+                {chartMode === 'binary' ? 'выполнений' : 'макс. стрик: ' +
+                  Math.max(...(chartPeriod === '7' ? habitDetailStats.chartData7 : habitDetailStats.chartData30).map(d => d.streak))}
+              </span>
+            </div>
+
+            {/* График */}
+            <div className={styles.lineChartWrapper}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={chartPeriod === '7' ? habitDetailStats.chartData7 : habitDetailStats.chartData30}
+                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id={`habitGradient-${selectedHabit.id}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={selectedHabit.color} stopOpacity={0.3} />
+                      <stop offset="100%" stopColor={selectedHabit.color} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(148, 163, 184, 0.15)"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="date"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fill: '#94A3B8' }}
+                    dy={10}
+                    interval={chartPeriod === '30' ? 4 : 0}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fill: '#94A3B8' }}
+                    domain={chartMode === 'binary' ? [0, 1] : [0, 'auto']}
+                    tickCount={chartMode === 'binary' ? 2 : 5}
+                    tickFormatter={chartMode === 'binary' ? (v) => (v === 1 ? '✓' : '✗') : undefined}
+                  />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className={styles.chartTooltip}>
+                            <div className={styles.tooltipDate}>{data.fullDate}</div>
+                            <div className={styles.tooltipValue}>
+                              {chartMode === 'binary'
+                                ? (data.binary ? 'Выполнено ✓' : 'Не выполнено')
+                                : `Стрик: ${data.streak} дн.`}
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  {chartMode === 'binary' && (
+                    <ReferenceLine y={0.5} stroke="rgba(148, 163, 184, 0.3)" strokeDasharray="3 3" />
+                  )}
+                  <Line
+                    type="monotone"
+                    dataKey={chartMode}
+                    stroke={selectedHabit.color}
+                    strokeWidth={2}
+                    dot={{
+                      r: 4,
+                      fill: selectedHabit.color,
+                      stroke: '#fff',
+                      strokeWidth: 2
+                    }}
+                    activeDot={{
+                      r: 6,
+                      fill: selectedHabit.color,
+                      stroke: '#fff',
+                      strokeWidth: 2
+                    }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>

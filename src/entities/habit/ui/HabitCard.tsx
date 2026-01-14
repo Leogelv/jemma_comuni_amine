@@ -19,8 +19,26 @@ interface HabitCardProps {
   weekStart: Date;
 }
 
-// Длительность long press в мс
-const LONG_PRESS_DURATION = 500;
+// Длительность long press в мс (2 секунды чтобы не срабатывало при скролле)
+const LONG_PRESS_DURATION = 2000;
+// Порог движения для отмены long press (в пикселях)
+const MOVE_THRESHOLD = 10;
+
+// Палитра цветов для выбора
+const HABIT_COLORS = [
+  '#8B5CF6', // Фиолетовый (по умолчанию)
+  '#6366F1', // Индиго
+  '#3B82F6', // Синий
+  '#06B6D4', // Циан
+  '#10B981', // Изумрудный
+  '#22C55E', // Зеленый
+  '#EAB308', // Желтый
+  '#F97316', // Оранжевый
+  '#EF4444', // Красный
+  '#EC4899', // Розовый
+  '#A855F7', // Пурпурный
+  '#6B7280', // Серый
+];
 
 // Тип анимации при клике
 type AnimationType = 'complete' | 'uncomplete' | null;
@@ -33,17 +51,22 @@ export function HabitCard({ habit, onToggleDate, onUpdate, onDelete, weekStart }
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(habit.title);
   const [editIcon, setEditIcon] = useState(habit.icon);
+  const [editColor, setEditColor] = useState(habit.color);
   const [showIconPicker, setShowIconPicker] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Long press detection
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   const isLongPress = useRef(false);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
 
   const today = startOfDay(new Date());
 
-  // Обработчики long press
-  const handlePressStart = useCallback(() => {
+  // Обработчики long press с отменой при движении (скролле)
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    touchStartPos.current = { x: touch.clientX, y: touch.clientY };
     isLongPress.current = false;
     longPressTimer.current = setTimeout(() => {
       isLongPress.current = true;
@@ -54,11 +77,54 @@ export function HabitCard({ habit, onToggleDate, onUpdate, onDelete, weekStart }
       setIsEditing(true);
       setEditTitle(habit.title);
       setEditIcon(habit.icon);
+      setEditColor(habit.color);
       setShowIconPicker(false);
+      setShowColorPicker(false);
     }, LONG_PRESS_DURATION);
-  }, [habit.title, habit.icon]);
+  }, [habit.title, habit.icon, habit.color]);
 
-  const handlePressEnd = useCallback(() => {
+  // Отмена long press при движении пальца (скролл)
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!touchStartPos.current || !longPressTimer.current) return;
+
+    const touch = e.touches[0];
+    const dx = Math.abs(touch.clientX - touchStartPos.current.x);
+    const dy = Math.abs(touch.clientY - touchStartPos.current.y);
+
+    // Если палец сдвинулся больше порога — отменяем long press
+    if (dx > MOVE_THRESHOLD || dy > MOVE_THRESHOLD) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+      touchStartPos.current = null;
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+    touchStartPos.current = null;
+  }, []);
+
+  // Для мыши (десктоп) — без отслеживания движения
+  const handleMouseDown = useCallback(() => {
+    isLongPress.current = false;
+    longPressTimer.current = setTimeout(() => {
+      isLongPress.current = true;
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      setIsEditing(true);
+      setEditTitle(habit.title);
+      setEditIcon(habit.icon);
+      setEditColor(habit.color);
+      setShowIconPicker(false);
+      setShowColorPicker(false);
+    }, LONG_PRESS_DURATION);
+  }, [habit.title, habit.icon, habit.color]);
+
+  const handleMouseUp = useCallback(() => {
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
@@ -152,12 +218,13 @@ export function HabitCard({ habit, onToggleDate, onUpdate, onDelete, weekStart }
       animate={{ opacity: 1, y: 0 }}
       className={`${styles.card} ${isEditing ? styles.editing : ''}`}
       style={cardStyle}
-      onTouchStart={handlePressStart}
-      onTouchEnd={handlePressEnd}
-      onTouchCancel={handlePressEnd}
-      onMouseDown={handlePressStart}
-      onMouseUp={handlePressEnd}
-      onMouseLeave={handlePressEnd}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
     >
       <AnimatePresence mode="wait">
         {isEditing ? (
