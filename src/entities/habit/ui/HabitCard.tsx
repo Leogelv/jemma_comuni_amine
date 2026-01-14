@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { format, addDays, isSameDay, parseISO, isAfter, startOfDay } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -55,6 +55,18 @@ export function HabitCard({ habit, onToggleDate, onUpdate, onDelete, weekStart }
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [iconSearch, setIconSearch] = useState('');
+
+  // Фильтрация иконок по поиску
+  const filteredIcons = useMemo(() => {
+    if (!iconSearch.trim()) return HABIT_ICONS;
+    const query = iconSearch.toLowerCase().trim();
+    return HABIT_ICONS.filter(icon =>
+      icon.label.toLowerCase().includes(query) ||
+      icon.keywords.toLowerCase().includes(query) ||
+      icon.name.toLowerCase().includes(query)
+    );
+  }, [iconSearch]);
 
   // Long press detection
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
@@ -247,7 +259,7 @@ export function HabitCard({ habit, onToggleDate, onUpdate, onDelete, weekStart }
               {/* Кнопка выбора иконки */}
               <button
                 type="button"
-                onClick={() => { setShowIconPicker(!showIconPicker); setShowColorPicker(false); }}
+                onClick={() => { setShowIconPicker(!showIconPicker); setShowColorPicker(false); if (showIconPicker) setIconSearch(''); }}
                 className={styles.iconSelector}
                 style={{ backgroundColor: `${editColor}20`, color: editColor }}
               >
@@ -288,25 +300,39 @@ export function HabitCard({ habit, onToggleDate, onUpdate, onDelete, weekStart }
                   exit={{ opacity: 0, height: 0 }}
                   className={styles.iconPicker}
                 >
+                  {/* Поиск по иконкам */}
+                  <input
+                    type="text"
+                    value={iconSearch}
+                    onChange={(e) => setIconSearch(e.target.value)}
+                    className={styles.iconSearchInput}
+                    placeholder="Поиск: спорт, книга, вода..."
+                    autoFocus={false}
+                  />
                   <div className={styles.iconGrid}>
-                    {HABIT_ICONS.map((item) => (
-                      <button
-                        key={item.name}
-                        type="button"
-                        onClick={() => {
-                          setEditIcon(item.name);
-                          setShowIconPicker(false);
-                        }}
-                        className={cn(
-                          styles.iconOption,
-                          editIcon === item.name && styles.iconSelected
-                        )}
-                        style={editIcon === item.name ? { borderColor: habit.color, color: habit.color } : undefined}
-                        title={item.label}
-                      >
-                        <DynamicIcon name={item.name} size={20} />
-                      </button>
-                    ))}
+                    {filteredIcons.length > 0 ? (
+                      filteredIcons.map((item) => (
+                        <button
+                          key={item.name}
+                          type="button"
+                          onClick={() => {
+                            setEditIcon(item.name);
+                            setShowIconPicker(false);
+                            setIconSearch('');
+                          }}
+                          className={cn(
+                            styles.iconOption,
+                            editIcon === item.name && styles.iconSelected
+                          )}
+                          style={editIcon === item.name ? { borderColor: editColor, color: editColor } : undefined}
+                          title={item.label}
+                        >
+                          <DynamicIcon name={item.name} size={20} />
+                        </button>
+                      ))
+                    ) : (
+                      <div className={styles.noIconsFound}>Ничего не найдено</div>
+                    )}
                   </div>
                 </motion.div>
               )}
