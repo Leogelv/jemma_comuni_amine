@@ -14,6 +14,13 @@
   margin-bottom: 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   background: var(--habit-color-bg, #F5F3FF);
+  /* Отключаем выделение текста на мобильных */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: pan-y;
 }
 
 /* Header: название + streak */

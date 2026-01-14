@@ -19,8 +19,8 @@ interface HabitCardProps {
   weekStart: Date;
 }
 
-// Длительность long press в мс (2 секунды чтобы не срабатывало при скролле)
-const LONG_PRESS_DURATION = 2000;
+// Длительность long press в мс (800ms — баланс между тапом и скроллом)
+const LONG_PRESS_DURATION = 800;
 // Порог движения для отмены long press (в пикселях)
 const MOVE_THRESHOLD = 10;
 
@@ -230,6 +230,7 @@ export function HabitCard({ habit, onToggleDate, onUpdate, onDelete, weekStart }
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
+      onContextMenu={(e) => e.preventDefault()}
     >
       <AnimatePresence mode="wait">
         {isEditing ? (
